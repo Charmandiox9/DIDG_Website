@@ -1,76 +1,66 @@
 "use server";
 
-export async function sendMessage(formData: FormData) {
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const message = formData.get("message") as string;
+export async function sendMessage(data: any) {
+  // 1. EXTRAER DATOS (Compatible con FormData y Objeto Plano)
+  const name = typeof data.get === 'function' ? data.get('name') : data.name;
+  const email = typeof data.get === 'function' ? data.get('email') : data.email;
+  const message = typeof data.get === 'function' ? data.get('message') : data.message;
 
-  if (!name || !email || !message) {
-    throw new Error("Faltan campos");
+  console.log("Datos extraídos:", { name, email, message });
+
+  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+  const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+  const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, "");
+
+  // 2. LIMPIEZA Y SEGURIDAD
+  const cleanName = (name || "Anónimo").toString().replace(/<|>/g, "");
+  const cleanEmail = (email || "Sin email").toString().trim();
+  const cleanMessage = (message || "Sin mensaje").toString().replace(/<|>/g, "");
+
+  const text = `<b>Nuevo mensaje de contacto</b>\n\n` +
+               `👤 <b>Nombre:</b> ${cleanName}\n` +
+               `📧 <b>Email:</b> ${cleanEmail}\n` +
+               `💬 <b>Mensaje:</b>\n${cleanMessage}`;
+
+  // 3. URLs
+  const replyEmailUrl = `mailto:${cleanEmail}`;
+  const dashboardUrl = `${SITE_URL}/dashboard`;
+
+  // 4. PREPARAR CUERPO DEL MENSAJE (Evitar localhost en botones para Telegram)
+  const isLocal = SITE_URL.includes('localhost');
+
+  const telegramBody: any = {
+    chat_id: CHAT_ID,
+    text: text,
+    parse_mode: "HTML",
+  };
+
+  // Solo agregamos botones si NO estamos en local
+  if (!isLocal) {
+    telegramBody.reply_markup = {
+      inline_keyboard: [
+        [
+          { text: "📧 Responder", url: replyEmailUrl },
+          { text: "🌐 Ver Dashboard", url: dashboardUrl }
+        ]
+      ]
+    };
   }
 
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-
-  if (!token || !chatId) {
-    throw new Error("Faltan tokens de Telegram");
-  }
-
-  // --- ESTILO CYBERPUNK / TERMINAL ---
-  // Usamos <b> para títulos
-  // Usamos <code> para que parezca código de consola
-  // Usamos <pre> para el bloque del mensaje
-  const text = `
-🚨 <b>INCOMING TRANSMISSION</b> 🚨
-━━━━━━━━━━━━━━━━
-<b>👤 USER_ID:</b> <code>${name}</code>
-<b>📧 CONTACT:</b> <code>${email}</code>
-<b>📅 TIME:</b> <code>${new Date().toLocaleString('es-CL')}</code>
-
-<b>📂 PAYLOAD:</b>
-<pre>${message}</pre>
-━━━━━━━━━━━━━━━━
-<i>> End of transmission.</i>
-`;
-
+  // 5. ENVÍO
   try {
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-    
-    const response = await fetch(url, {
+    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: text,
-        parse_mode: "HTML", // <--- Importante para que lea el estilo
-        
-        // --- BOTÓN MÁGICO ---
-        // Esto añade un botón debajo del mensaje para responder en 1 click
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "📧 Responder Vía Email",
-                url: `mailto:${email}?subject=RE: Contacto Web Didg&body=Hola ${name}, recibí tu mensaje...`
-              }
-            ]
-          ]
-        }
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(telegramBody), // Usamos el body construido arriba
     });
 
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error("Telegram Error:", errorData);
-      throw new Error("Error al enviar a Telegram");
-    }
+    const result = await response.json();
+    if (!result.ok) throw new Error(result.description);
 
     return { success: true };
-
   } catch (error) {
-    console.error(error);
+    console.error("Telegram Error:", error);
     throw new Error("No se pudo enviar el mensaje.");
   }
 }
