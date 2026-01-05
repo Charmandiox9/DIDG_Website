@@ -22,9 +22,19 @@ export async function sendMessage(data: any) {
                `📧 <b>Email:</b> ${cleanEmail}\n` +
                `💬 <b>Mensaje:</b>\n${cleanMessage}`;
 
-  // 3. URLs
-  const replyEmailUrl = `mailto:${cleanEmail}`;
-  const dashboardUrl = `${SITE_URL}/dashboard`;
+  // 3. URLs BLINDADAS (Limpieza agresiva de espacios y saltos de línea)
+  const cleanEmailForUrl = (email || "").toString().trim().replace(/\s/g, "");
+  const cleanSiteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://danielduran.engineer')
+    .trim()
+    .replace(/\s/g, "")
+    .replace(/\/$/, "");
+
+  const replyEmailUrl = `mailto:${cleanEmailForUrl}`;
+  const dashboardUrl = `${cleanSiteUrl}/dashboard`;
+
+  // LOG DE DEPURACIÓN (Verás esto en Vercel para confirmar la URL exacta)
+  console.log("URL de Respuesta:", replyEmailUrl);
+  console.log("URL de Dashboard:", dashboardUrl);
 
   // 4. PREPARAR CUERPO DEL MENSAJE (Evitar localhost en botones para Telegram)
   const isLocal = SITE_URL.includes('localhost');
