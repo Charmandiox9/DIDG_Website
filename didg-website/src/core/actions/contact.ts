@@ -22,17 +22,28 @@ export async function sendMessage(data: any) {
                `📧 <b>Email:</b> ${cleanEmail}\n` +
                `💬 <b>Mensaje:</b>\n${cleanMessage}`;
 
-  // 3. URLs BLINDADAS (Quitamos el WWW para máxima compatibilidad con Telegram)
-  const cleanEmailForUrl = (email || "").toString().trim().replace(/\s/g, "");
-  
-  // Forzamos el dominio raíz sin WWW
-  const cleanSiteUrl = "https://danielduran.engineer";
+  // 3. URLs (Simplificadas al máximo)
+  const dashboardUrl = "https://danielduran.engineer/dashboard";
 
-  const replyEmailUrl = `mailto:${cleanEmailForUrl}`;
-  const dashboardUrl = `${cleanSiteUrl}/dashboard`;
+  // 4. Preparar cuerpo del mensaje
+  const telegramBody: any = {
+    chat_id: CHAT_ID,
+    text: text,
+    parse_mode: "HTML",
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { 
+            text: "🌐 Ver en la Web", 
+            url: dashboardUrl 
+          }
+        ]
+      ]
+    }
+  };
 
-  console.log("URL de Respuesta final:", replyEmailUrl);
-  console.log("URL de Dashboard final:", dashboardUrl);
+  // Log para confirmar qué enviamos al JSON
+  console.log("Enviando a Telegram:", JSON.stringify(telegramBody.reply_markup));
 
   // 4. PREPARAR CUERPO DEL MENSAJE (Evitar localhost en botones para Telegram)
   const isLocal = SITE_URL.includes('localhost');
