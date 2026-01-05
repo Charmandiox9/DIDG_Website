@@ -23,7 +23,7 @@ export async function sendMessage(data: any) {
                `💬 <b>Mensaje:</b>\n${cleanMessage}`;
 
   // 3. URLs (Simplificadas al máximo)
-  const dashboardUrl = "https://danielduran.engineer/dashboard";
+  const dashboardUrl = "https://danielduran.engineer";
 
   // 4. Preparar cuerpo del mensaje
   const telegramBody: any = {
@@ -40,18 +40,6 @@ export async function sendMessage(data: any) {
         ]
       ]
     }
-  };
-
-  // Log para confirmar qué enviamos al JSON
-  console.log("Enviando a Telegram:", JSON.stringify(telegramBody.reply_markup));
-
-  // 4. PREPARAR CUERPO DEL MENSAJE (Evitar localhost en botones para Telegram)
-  const isLocal = SITE_URL.includes('localhost');
-
-  const telegramBody: any = {
-    chat_id: CHAT_ID,
-    text: text,
-    parse_mode: "HTML",
   };
 
   // Solo agregamos botones si NO estamos en local
