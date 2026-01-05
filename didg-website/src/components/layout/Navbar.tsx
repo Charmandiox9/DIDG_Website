@@ -1,39 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react"; // <-- Importamos hooks
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Terminal, User, BookOpen, Cpu, LogOut } from "lucide-react";
-import { createClient } from "@/infrastructure/supabase/client"; // <-- Importamos cliente
+import { usePathname } from "next/navigation";
+import { Terminal, Menu, X, Cpu, BookOpen, User } from "lucide-react"; // Agregué Menu y X para móvil
 import { cn } from "@/core/utils/cn";
 
-export function Navbar() {
+export function Navbar({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const supabase = createClient();
-  const [user, setUser] = useState<any>(null); // Estado para el usuario
-
-  // Verificar sesión al cargar
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-    };
-    
-    checkUser();
-
-    // Escuchar cambios en la autenticación (Login/Logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.refresh();
-  };
+  const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
     { name: "Proyectos", href: "/projects", icon: Cpu },
@@ -42,10 +17,11 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/60 backdrop-blur-md transition-all duration-300">
+    <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/80 backdrop-blur-md transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* LOGO */}
+          
+          {/* 1. LOGO */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="p-2 rounded bg-primary/10 border border-primary/20 group-hover:border-primary/50 transition-colors">
               <Terminal className="w-5 h-5 text-primary" />
@@ -55,7 +31,7 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* MENU ESCRITORIO */}
+          {/* 2. MENU ESCRITORIO (Central) */}
           <div className="hidden md:flex items-center gap-8">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
@@ -74,35 +50,44 @@ export function Navbar() {
                 </Link>
               );
             })}
-
-            {/* ZONA DE USUARIO / LOGIN */}
-            {user ? (
-              <div className="flex items-center gap-4 border-l border-white/10 pl-6">
-                <div className="text-right hidden lg:block">
-                  <p className="text-xs text-text-muted font-mono">Conectado como</p>
-                  <p className="text-sm font-bold text-primary truncate max-w-[150px]">
-                    {user.email}
-                  </p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-text-muted hover:text-error hover:bg-error/10 rounded transition-all"
-                  title="Cerrar Sesión"
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className="px-5 py-2 text-sm font-bold bg-primary text-background rounded hover:bg-primary/90 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all duration-300 clip-path-polygon"
-              >
-                ACCESO_SYSTEM
-              </Link>
-            )}
           </div>
+
+          {/* 3. ZONA DE BOTONES (Aquí se renderiza AuthButtons que viene del layout) */}
+          <div className="hidden md:block border-l border-white/10 pl-6">
+            {children}
+          </div>
+
+          {/* 4. BOTÓN HAMBURGUESA (Móvil) */}
+          <button 
+            className="md:hidden p-2 text-text-muted hover:text-white"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X /> : <Menu />}
+          </button>
         </div>
       </div>
+
+      {/* 5. MENÚ MÓVIL DESPLEGABLE */}
+      {isOpen && (
+        <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-white/10 p-4 flex flex-col gap-4 animate-in slide-in-from-top-5 shadow-2xl">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2 text-sm font-mono text-text-muted hover:text-primary p-2 rounded hover:bg-white/5"
+            >
+              <item.icon className="w-4 h-4" />
+              {item.name}
+            </Link>
+          ))}
+          
+          {/* Renderizamos los botones también en móvil */}
+          <div className="pt-4 border-t border-white/10 flex justify-center">
+            {children}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

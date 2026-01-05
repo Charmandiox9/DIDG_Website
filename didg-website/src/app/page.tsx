@@ -1,7 +1,18 @@
 import Link from "next/link";
 import { ArrowRight, Code2, Database } from "lucide-react";
+import { createClient } from "@/infrastructure/supabase/server"; // Importar cliente
+import { ProjectCard } from "@/components/projects/ProjectCard"; // Importar tarjeta
 
-export default function Home() {
+export default async function Home() {
+
+  const supabase = await createClient();
+  // Traer solo los últimos 3 proyectos
+  const { data: featuredProjects } = await supabase
+    .from("projects")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(3);
+
   return (
     <div className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 overflow-hidden">
       
@@ -17,21 +28,22 @@ export default function Home() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
           </span>
-          <span className="text-xs font-mono text-primary tracking-widest uppercase">Open to Work</span>
+          <span className="text-xs font-mono text-primary tracking-widest uppercase"> Ayudante • Full-Stack • Ingeniería TI</span>
         </div>
 
         {/* Título Principal */}
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold tracking-tight text-white leading-tight">
-          ARCHITECTING <br />
+          BUILDING SOFTWARE <br />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-white to-secondary animate-gradient-x">
-            THE FUTURE
+            AND TEACHING HOW
           </span>
         </h1>
 
         <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-light leading-relaxed">
-          Ingeniero de Software y Desarrollador Full-Stack especializado en 
-          <span className="text-text-main font-medium"> Arquitectura Limpia</span>, 
-          <span className="text-text-main font-medium"> IoT</span> y soluciones escalables.
+          Estudiante de <span className="text-text-main font-medium">Ingeniería en Tecnologías de la Información</span> y 
+          <span className="text-text-main font-medium"> ayudante universitario</span>.  
+          Desarrollo aplicaciones web, backend y proyectos académicos aplicando 
+          <span className="text-text-main font-medium"> arquitectura limpia</span> y buenas prácticas.
         </p>
 
         {/* Botones de Acción */}
@@ -40,7 +52,7 @@ export default function Home() {
             href="/projects" 
             className="group px-8 py-4 bg-primary text-background font-bold text-lg rounded hover:bg-white transition-all duration-300 flex items-center gap-2"
           >
-            Ver Proyectos
+            Explorar Proyectos
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           
@@ -69,6 +81,28 @@ export default function Home() {
         </div>
 
       </div>
+
+      {/* --- NUEVA SECCIÓN: PROYECTOS DESTACADOS --- */}
+      {featuredProjects && featuredProjects.length > 0 && (
+        <section className="py-20 px-4 max-w-7xl mx-auto w-full z-10">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-2xl font-display font-bold text-white flex items-center gap-2">
+              <span className="w-2 h-8 bg-primary rounded-sm" />
+              Últimos Lanzamientos
+            </h2>
+            <Link href="/projects" className="text-sm font-mono text-primary hover:text-white transition-colors flex items-center gap-1">
+              Ver todo el archivo <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {featuredProjects.map(project => (
+                <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        </section>
+      )}
+
     </div>
   );
 }
