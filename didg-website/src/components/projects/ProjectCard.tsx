@@ -1,5 +1,6 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
 import { Github, Globe, ArrowUpRight } from "lucide-react";
 import { cn } from "@/core/utils/cn";
 import { Database } from "@/types/supabase";
@@ -9,14 +10,18 @@ type Project = Database['public']['Tables']['projects']['Row'];
 interface ProjectCardProps {
   project: Project;
   className?: string;
+  onClick?: () => void; // Nuevo prop
 }
 
-export function ProjectCard({ project, className }: ProjectCardProps) {
+export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
   return (
-    <div className={cn(
-      "group relative flex flex-col overflow-hidden rounded-xl bg-surface/40 border border-white/10 hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(0,240,255,0.1)]",
-      className
-    )}>
+    <div 
+      onClick={onClick} // Acción al hacer click en la tarjeta
+      className={cn(
+        "group relative flex flex-col overflow-hidden rounded-xl bg-surface/40 border border-white/10 transition-all duration-500 hover:shadow-[0_0_30px_rgba(0,240,255,0.1)] cursor-pointer hover:border-primary/50",
+        className
+      )}
+    >
       
       {/* Imagen con Overlay */}
       <div className="relative h-56 w-full overflow-hidden">
@@ -32,11 +37,8 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
             <span className="text-text-muted font-mono text-xs">NO IMAGE DATA</span>
           </div>
         )}
-        
-        {/* Overlay gradiente */}
         <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-80" />
         
-        {/* Badge Categoría */}
         <div className="absolute top-4 right-4">
           <span className="px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-background bg-primary rounded-sm shadow-[0_0_10px_rgba(0,240,255,0.5)]">
             {project.category}
@@ -54,40 +56,24 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
           {project.description}
         </p>
 
-        {/* Tech Stack */}
         <div className="flex flex-wrap gap-2 mb-6">
           {project.tech_stack?.slice(0, 4).map((tech) => (
-            <span 
-              key={tech} 
-              className="px-2 py-1 text-[10px] font-mono text-primary/80 border border-primary/20 rounded bg-primary/5"
-            >
+            <span key={tech} className="px-2 py-1 text-[10px] font-mono text-primary/80 border border-primary/20 rounded bg-primary/5">
               {tech}
             </span>
           ))}
         </div>
 
-        {/* Links Footer */}
-        <div className="flex items-center gap-4 mt-auto pt-4 border-t border-white/5">
+        {/* Links Footer: stopPropagation evita abrir el modal si clicas directo en el link */}
+        <div className="flex items-center gap-4 mt-auto pt-4 border-t border-white/5" onClick={(e) => e.stopPropagation()}>
           {project.repo_url && (
-            <a 
-              href={project.repo_url} 
-              target="_blank" 
-              rel="noreferrer"
-              className="flex items-center gap-2 text-xs font-mono text-text-muted hover:text-white transition-colors"
-            >
-              <Github className="w-4 h-4" />
-              CODE
+            <a href={project.repo_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-mono text-text-muted hover:text-white transition-colors">
+              <Github className="w-4 h-4" /> CODE
             </a>
           )}
           {project.demo_url && (
-            <a 
-              href={project.demo_url} 
-              target="_blank" 
-              rel="noreferrer"
-              className="flex items-center gap-2 text-xs font-mono text-text-muted hover:text-primary transition-colors ml-auto"
-            >
-              LIVE DEMO
-              <ArrowUpRight className="w-4 h-4" />
+            <a href={project.demo_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-mono text-text-muted hover:text-primary transition-colors ml-auto">
+              LIVE DEMO <ArrowUpRight className="w-4 h-4" />
             </a>
           )}
         </div>
