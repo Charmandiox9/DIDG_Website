@@ -16,12 +16,14 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
 
   if (!project) return <div>Proyecto no encontrado</div>;
 
+  const p = project as any;
+
   return (
     <div className="max-w-3xl mx-auto animate-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-white">Editar Proyecto</h1>
-          <p className="text-text-muted font-mono text-sm">Modificando: <span className="text-primary">{project.title}</span></p>
+          <p className="text-text-muted font-mono text-sm">Modificando: <span className="text-primary">{p.title}</span></p>
         </div>
         <Link href="/dashboard/projects" className="px-4 py-2 rounded border border-white/10 text-text-muted hover:text-white text-sm font-mono transition-colors">
           Cancelar
@@ -36,7 +38,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
             <label className="text-xs font-mono text-primary uppercase">Título</label>
             <input 
               name="title" 
-              defaultValue={project.title} 
+              defaultValue={p.title} 
               required 
               className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none" 
             />
@@ -45,7 +47,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
             <label className="text-xs font-mono text-primary uppercase">Categoría</label>
             <select 
               name="category" 
-              defaultValue={project.category} 
+              defaultValue={p.category} 
               className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none appearance-none"
             >
               <option value="software">Software</option>
@@ -60,7 +62,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
           <label className="text-xs font-mono text-primary uppercase">Descripción</label>
           <textarea 
             name="description" 
-            defaultValue={project.description} 
+            defaultValue={p.description} 
             required 
             rows={4} 
             className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none" 
@@ -74,7 +76,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
           </label>
           <input 
             name="tech_stack" 
-            defaultValue={project.tech_stack?.join(", ")} 
+            defaultValue={p.tech_stack?.join(", ")} 
             className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none" 
           />
         </div>
@@ -85,13 +87,13 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
             <label className="text-xs font-mono text-primary uppercase flex items-center gap-2">
               <Github className="w-3 h-3" /> Repo URL
             </label>
-            <input name="repo_url" defaultValue={project.repo_url || ""} type="url" className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none" />
+            <input name="repo_url" defaultValue={p.repo_url || ""} type="url" className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none" />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-mono text-primary uppercase flex items-center gap-2">
               <Globe className="w-3 h-3" /> Demo URL
             </label>
-            <input name="demo_url" defaultValue={project.demo_url || ""} type="url" className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none" />
+            <input name="demo_url" defaultValue={p.demo_url || ""} type="url" className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none" />
           </div>
         </div>
 

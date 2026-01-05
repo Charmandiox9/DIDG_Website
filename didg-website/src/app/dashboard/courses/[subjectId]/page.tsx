@@ -25,6 +25,9 @@ export default async function SubjectDetailPage({ params }: { params: { subjectI
     .eq("subject_id", subjectId)
     .order("date", { ascending: false });
 
+  const s = subject as any;
+  const ayus = (ayudantias || []) as any[];
+
   return (
     <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
       
@@ -35,12 +38,12 @@ export default async function SubjectDetailPage({ params }: { params: { subjectI
         </Link>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-display font-bold text-white">{subject.name}</h1>
+            <h1 className="text-3xl font-display font-bold text-white">{s.name}</h1>
             <span className="text-xs font-mono px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">
-              {subject.semesters?.name}
+              {s.semesters?.name}
             </span>
           </div>
-          <p className="text-text-muted font-mono text-sm">{subject.code} — Gestión de Contenido</p>
+          <p className="text-text-muted font-mono text-sm">{s.code} — Gestión de Contenido</p>
         </div>
       </div>
 
@@ -55,7 +58,7 @@ export default async function SubjectDetailPage({ params }: { params: { subjectI
               No hay contenido subido aún. Usa el formulario de la derecha.
             </div>
           ) : (
-            ayudantias?.map((ayu) => (
+            ayus?.map((ayu) => (
               <Card key={ayu.id} className="p-4 flex flex-col sm:flex-row gap-4 group hover:border-primary/40 transition-colors">
                 {/* Fecha Box */}
                 <div className="flex flex-col items-center justify-center p-3 bg-white/5 rounded border border-white/5 min-w-[80px]">

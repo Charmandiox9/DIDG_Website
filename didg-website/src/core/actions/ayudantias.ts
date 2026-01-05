@@ -49,6 +49,7 @@ export async function createAyudantia(formData: FormData) {
   }
 
   // 3. Insertar en DB
+  // @ts-ignore
   const { error: dbError } = await supabase.from("ayudantias").insert({
     title: parsed.data.title,
     description: parsed.data.description,

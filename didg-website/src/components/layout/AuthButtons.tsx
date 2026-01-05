@@ -28,11 +28,13 @@ export async function AuthButtons() {
     .eq("id", user.id)
     .single();
 
+  const p = profile as any;
+
   return (
     <div className="flex items-center gap-4">
       
       {/* BOTÓN ADMIN: Dashboard */}
-      {profile?.role === "admin" && (
+      {p?.role === "admin" && (
         <Link 
           href="/dashboard" 
           className="flex items-center gap-2 px-4 py-2 text-sm font-bold border border-primary text-primary rounded-full hover:bg-primary/10 transition-colors"
@@ -44,7 +46,7 @@ export async function AuthButtons() {
 
       {/* BOTÓN ESTUDIANTE: Mis Notas */}
       {/* Aparece si eres 'student' o 'admin' (para probar) */}
-      {(profile?.role === "student" || profile?.role === "admin") && (
+      {(p?.role === "student" || p?.role === "admin") && (
         <Link 
           href="/grades" 
           className="flex items-center gap-2 px-4 py-2 text-sm font-bold border border-secondary text-secondary rounded-full hover:bg-secondary/10 transition-colors"

@@ -23,8 +23,10 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single();
 
+  const userProfile = profile as any;
+
   // Si no hay perfil o el rol no es admin, fuera.
-  if (!profile || profile.role !== "admin") {
+  if (!userProfile || userProfile.role !== "admin") {
     // Opcional: Podrías redirigir a una página de "No autorizado"
     redirect("/");
   }

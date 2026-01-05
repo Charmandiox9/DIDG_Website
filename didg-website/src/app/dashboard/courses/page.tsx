@@ -13,6 +13,8 @@ export default async function CoursesDashboard() {
     .select("*, subjects(*)")
     .order("created_at", { ascending: false });
 
+  const semestersList = (semesters || []) as any[];
+
   return (
     <div className="space-y-8 animate-in fade-in">
       
@@ -33,7 +35,7 @@ export default async function CoursesDashboard() {
 
       {/* LISTA DE SEMESTRES */}
       <div className="grid gap-6">
-        {semesters?.map((semester) => (
+        {semestersList?.map((semester) => (
           <div key={semester.id} className={`relative border-l-2 pl-6 py-2 ${semester.is_active ? 'border-primary' : 'border-white/10 opacity-70'}`}>
             
             <div className="flex items-center gap-4 mb-4">
@@ -67,7 +69,7 @@ export default async function CoursesDashboard() {
               </Card>
 
               {/* ASIGNATURAS */}
-              {semester.subjects?.map((subject) => (
+              {semester.subjects?.map((subject: any) => (
                 <Card key={subject.id} className="group hover:border-primary/30 transition-colors relative">
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">

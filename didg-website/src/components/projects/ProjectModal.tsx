@@ -30,6 +30,8 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
   // Evitamos errores de hidratación esperando a que el cliente monte
   if (!mounted) return null;
 
+  const p = project as any;
+
   // 2. USAMOS createPortal PARA "TELETRANSPORTAR" EL MODAL AL BODY
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
@@ -137,7 +139,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                     <div className="flex items-center gap-2 text-sm text-white">
                         <Calendar className="w-4 h-4 text-secondary" />
                         {/* Usamos project_date si existe, si no created_at */}
-                        {new Date(project.project_date || project.created_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long' })}
+                        {new Date(p.project_date || project.created_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long' })}
                     </div>
                 </div>
 

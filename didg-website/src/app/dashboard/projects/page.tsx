@@ -19,6 +19,8 @@ export default async function ProjectsListPage() {
     .select("*")
     .order("project_date", { ascending: false }); // <-- OJO: Ahora ordenamos por la fecha real del proyecto
 
+  const projectsList = (projects || []) as any[];
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       
@@ -57,7 +59,7 @@ export default async function ProjectsListPage() {
                 </td>
               </tr>
             ) : (
-              projects?.map((project) => {
+              projectsList?.map((project) => {
                 const Icon = CategoryIcon[project.category as keyof typeof CategoryIcon] || Monitor;
                 
                 // Usamos project_date si existe, si no, usamos created_at como respaldo

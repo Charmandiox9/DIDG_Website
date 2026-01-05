@@ -46,6 +46,7 @@ export async function updateProject(id: string, formData: FormData) {
   const techArray = rawData.tech_stack?.toString().split(",").map(t => t.trim()) || [];
 
   // Solo actualizamos campos de texto (la imagen la dejamos igual por simplicidad en este paso)
+  // @ts-ignore
   const { error } = await supabase.from("projects").update({
     title: rawData.title as string,
     description: rawData.description as string,
@@ -109,6 +110,7 @@ export async function createProject(formData: FormData) {
   // Convertir tech_stack de "React, Node" a array ["React", "Node"]
   const techArray = rawData.tech_stack?.toString().split(",").map(t => t.trim()) || [];
 
+  // @ts-ignore
   const { error: dbError } = await supabase.from("projects").insert({
     title: rawData.title as string,
     slug: slug,
