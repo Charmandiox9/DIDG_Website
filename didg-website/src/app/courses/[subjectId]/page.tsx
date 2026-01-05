@@ -23,7 +23,10 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
 
   if (!subject) return <div className="p-20 text-center text-white">Asignatura no encontrada</div>;
 
+  // --- ZONA DE PARCHES PARA TYPESCRIPT ---
+  // Convertimos las respuestas a 'any' para evitar errores de compilación estrictos
   const s = subject as any;
+  const ayus_list = ayudantias as any[]; // <--- ESTO ARREGLA EL ERROR NUEVO
 
   return (
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto animate-in fade-in duration-500">
@@ -35,6 +38,7 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
         </Link>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
+                {/* Usamos la variable 's' */}
                 <span className="text-secondary font-mono text-sm mb-2 block">{s.semesters?.name} — {s.code}</span>
                 <h1 className="text-4xl font-display font-bold text-white">{s.name}</h1>
             </div>
@@ -44,7 +48,8 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
       {/* Timeline de Ayudantías */}
       <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/10 before:to-transparent">
         
-        {ayudantias?.map((ayu) => (
+        {/* USAMOS 'ayus_list' EN LUGAR DE 'ayudantias' */}
+        {ayus_list?.map((ayu) => (
           <div key={ayu.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
             
             {/* Icono Central */}
@@ -88,7 +93,7 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
           </div>
         ))}
 
-        {ayudantias?.length === 0 && (
+        {ayus_list?.length === 0 && (
             <div className="text-center py-20 text-text-muted bg-surface/20 rounded-xl border border-dashed border-white/10 relative z-10">
                 Aún no se ha subido contenido para esta asignatura.
             </div>
