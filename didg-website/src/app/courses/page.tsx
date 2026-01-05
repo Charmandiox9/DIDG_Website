@@ -35,7 +35,7 @@ export default async function PublicCoursesPage() {
 
       {/* Grid de Semestres */}
       <div className="grid gap-12">
-        {semestersList?.map((semester) => (
+        {semestersList?.map((semester: any) => (
           <div key={semester.id} className="space-y-6">
             <div className="flex items-center gap-4 border-b border-white/10 pb-2">
               <Calendar className="w-5 h-5 text-text-muted" />
@@ -43,7 +43,7 @@ export default async function PublicCoursesPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {semester.subjects?.map((subject) => (
+              {semester.subjects?.map((subject: any) => (
                 <Link key={subject.id} href={`/courses/${subject.id}`} className="group">
                   <Card className="h-full p-6 border-white/5 bg-surface/40 hover:border-secondary/50 transition-all duration-300 hover:-translate-y-1">
                     <div className="flex justify-between items-start mb-4">
