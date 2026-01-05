@@ -15,6 +15,8 @@ export default async function PublicCoursesPage() {
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
+  const semestersList = semesters as any[];
+
   return (
     <div className="min-h-screen py-20 px-4 md:px-8 max-w-7xl mx-auto space-y-12">
       
@@ -33,7 +35,7 @@ export default async function PublicCoursesPage() {
 
       {/* Grid de Semestres */}
       <div className="grid gap-12">
-        {semesters?.map((semester) => (
+        {semestersList?.map((semester) => (
           <div key={semester.id} className="space-y-6">
             <div className="flex items-center gap-4 border-b border-white/10 pb-2">
               <Calendar className="w-5 h-5 text-text-muted" />
@@ -70,7 +72,7 @@ export default async function PublicCoursesPage() {
           </div>
         ))}
         
-        {semesters?.length === 0 && (
+        {(!semestersList || semestersList?.length === 0) && (
             <div className="text-center text-text-muted py-10">
                 No hay asignaturas activas disponibles en este momento.
             </div>
