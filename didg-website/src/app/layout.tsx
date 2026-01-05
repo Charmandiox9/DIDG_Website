@@ -4,6 +4,8 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AuthButtons } from "@/components/layout/AuthButtons";
+import { EasterEgg } from "@/components/layout/EasterEgg";
+import { CommandMenu } from "@/components/layout/CommandMenu";
 
 // Fuentes...
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -11,8 +13,12 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrai
 const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: "DIDG | Developer & Architect",
   description: "Portafolio académico y profesional de desarrollo de software y hardware.",
+  openGraph: {
+    images: '/og', // <--- Apunta a la ruta que acabamos de crear
+  },
 };
 
 export default function RootLayout({
@@ -28,6 +34,9 @@ export default function RootLayout({
         <Navbar>
            <AuthButtons />
         </Navbar>
+
+        <CommandMenu />
+        <EasterEgg />
 
         <main className="flex-grow pt-16 relative z-10">
           {children}
