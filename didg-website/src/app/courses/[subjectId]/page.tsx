@@ -1,13 +1,11 @@
 import { createClient } from "@/infrastructure/supabase/server";
 import { DownloadButton } from "@/components/courses/DownloadButton";
 import Link from "next/link";
-import { ArrowLeft, Video, Calendar, FileText, Eye } from "lucide-react"; // Agregamos Eye para "Ver"
-import ReactMarkdown from "react-markdown"; // Importar librería
-import remarkGfm from "remark-gfm"; // Soporte para tablas, listas, etc.
+import { ArrowLeft, Video, Calendar, FileText, Eye } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw"; // <--- 1. IMPORTANTE: Agregamos esto para leer HTML
 
-// Función auxiliar para obtener la URL pública completa si es necesario
-// Nota: Dependiendo de cómo guardes 'material_url', quizás necesites concatenar la URL de Supabase.
-// Asumiremos que material_url es el path relativo en el bucket 'materials'.
 const getFileUrl = (path: string) => {
   if (!path) return "";
   if (path.startsWith("http")) return path;
@@ -57,7 +55,6 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
       <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/10 before:to-transparent">
         
         {ayus_list?.map((ayu) => {
-          // Lógica para detectar PDF
           const isPdf = ayu.material_url?.toLowerCase().endsWith('.pdf');
           const publicUrl = getFileUrl(ayu.material_url);
 
@@ -78,31 +75,60 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
               
               <h3 className="text-xl font-bold text-white mb-2">{ayu.title}</h3>
               
-              {/* RENDERIZADO DE MARKDOWN */}
-              <div className="text-sm text-text-muted mb-4 prose prose-invert prose-sm max-w-none">
+              {/* RENDERIZADO DE MARKDOWN + HTML */}
+              <div className="text-sm text-text-muted mb-4">
                 <ReactMarkdown 
                     remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]} // <--- 2. ACTIVAR SOPORTE HTML
                     components={{
-                        // Estilos personalizados básicos para el markdown
-                        ul: ({node, ...props}) => <ul className="list-disc pl-4 my-2" {...props} />,
-                        ol: ({node, ...props}) => <ol className="list-decimal pl-4 my-2" {...props} />,
-                        a: ({node, ...props}) => <a className="text-primary hover:underline" target="_blank" {...props} />,
-                        code: ({node, ...props}) => <code className="bg-black/30 px-1 rounded font-mono text-xs" {...props} />
+                        // --- Estilos para HTML y Markdown ---
+                        
+                        // h1: Lo hacemos un poco más pequeño para mantener jerarquía visual en la tarjeta
+                        h1: ({node, ...props}) => <h4 className="text-base font-bold text-white mt-3 mb-1 uppercase border-b border-white/10 pb-1" {...props} />,
+                        
+                        // h2: Subtítulos
+                        h2: ({node, ...props}) => <h5 className="text-sm font-bold text-secondary mt-3 mb-1" {...props} />,
+                        
+                        // p: Párrafos
+                        p: ({node, ...props}) => <div className="mb-2 leading-relaxed" {...props} />,
+                        
+                        // Listas
+                        ul: ({node, ...props}) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal pl-4 mb-2 space-y-1" {...props} />,
+                        li: ({node, ...props}) => <li className="pl-1" {...props} />,
+                        
+                        // Enlaces
+                        a: ({node, ...props}) => <a className="text-primary hover:underline" target="_blank" rel="noreferrer" {...props} />,
+                        
+                        // img: Soporte para imágenes flotantes (align="right")
+                        img: ({node, ...props}) => (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img 
+                              className="rounded-md max-w-full my-2 inline-block" 
+                              style={{ float: (props as any).align || 'none', marginLeft: (props as any).align === 'right' ? '10px' : 0 }} 
+                              {...props} 
+                              alt={props.alt || "Imagen"}
+                            />
+                        ),
+
+                        // Code blocks
+                        code: ({node, ...props}) => <code className="bg-black/30 px-1 rounded font-mono text-xs" {...props} />,
+                        
+                        // Negrita y Líneas
+                        strong: ({node, ...props}) => <strong className="text-white font-semibold" {...props} />,
+                        hr: ({node, ...props}) => <hr className="my-3 border-white/10" {...props} />
                     }}
                 >
                     {ayu.description || ""}
                 </ReactMarkdown>
               </div>
               
-              <div className="flex flex-wrap gap-3 pt-4 border-t border-white/5">
+              <div className="flex flex-wrap gap-3 pt-4 border-t border-white/5 clear-both"> {/* clear-both para limpiar floats de img */}
                 
-                {/* Lógica de Materiales: PDF vs Descarga normal */}
                 {ayu.material_url ? (
                   <div className="flex gap-2">
-                    {/* Botón de Descarga (Siempre disponible) */}
                     <DownloadButton filePath={ayu.material_url} />
 
-                    {/* Botón de Visualizar (Solo si es PDF) */}
                     {isPdf && (
                         <a 
                             href={publicUrl}
@@ -120,7 +146,6 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
                   </span>
                 )}
 
-                {/* Enlace a Video */}
                 {ayu.video_url && (
                   <a 
                     href={ayu.video_url} 
