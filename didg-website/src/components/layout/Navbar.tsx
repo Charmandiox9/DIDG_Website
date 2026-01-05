@@ -1,12 +1,39 @@
 "use client";
 
+import { useState, useEffect } from "react"; // <-- Importamos hooks
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Terminal, User, BookOpen, Cpu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Terminal, User, BookOpen, Cpu, LogOut } from "lucide-react";
+import { createClient } from "@/infrastructure/supabase/client"; // <-- Importamos cliente
 import { cn } from "@/core/utils/cn";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+  const [user, setUser] = useState<any>(null); // Estado para el usuario
+
+  // Verificar sesión al cargar
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+    
+    checkUser();
+
+    // Escuchar cambios en la autenticación (Login/Logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+  };
 
   const navItems = [
     { name: "Proyectos", href: "/projects", icon: Cpu },
@@ -37,9 +64,10 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 text-sm font-mono transition-all duration-200 hover:text-primary ${
+                  className={cn(
+                    "flex items-center gap-2 text-sm font-mono transition-all duration-200 hover:text-primary",
                     isActive ? "text-primary" : "text-text-muted"
-                  }`}
+                  )}
                 >
                   <Icon className="w-4 h-4" />
                   {item.name}
@@ -47,13 +75,31 @@ export function Navbar() {
               );
             })}
 
-            {/* BOTÓN LOGIN */}
-            <Link
-              href="/login"
-              className="px-5 py-2 text-sm font-bold bg-primary text-background rounded hover:bg-primary/90 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all duration-300 clip-path-polygon"
-            >
-              ACCESO_SYSTEM
-            </Link>
+            {/* ZONA DE USUARIO / LOGIN */}
+            {user ? (
+              <div className="flex items-center gap-4 border-l border-white/10 pl-6">
+                <div className="text-right hidden lg:block">
+                  <p className="text-xs text-text-muted font-mono">Conectado como</p>
+                  <p className="text-sm font-bold text-primary truncate max-w-[150px]">
+                    {user.email}
+                  </p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-text-muted hover:text-error hover:bg-error/10 rounded transition-all"
+                  title="Cerrar Sesión"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="px-5 py-2 text-sm font-bold bg-primary text-background rounded hover:bg-primary/90 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all duration-300 clip-path-polygon"
+              >
+                ACCESO_SYSTEM
+              </Link>
+            )}
           </div>
         </div>
       </div>
