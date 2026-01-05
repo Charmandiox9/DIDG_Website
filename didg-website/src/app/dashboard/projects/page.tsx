@@ -1,8 +1,9 @@
 import { createClient } from "@/infrastructure/supabase/server";
-import { deleteProject } from "@/core/actions/projects"; // <--- IMPORTANTE
+import { deleteProject } from "@/core/actions/projects";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, Github, Monitor, Terminal, Cpu } from "lucide-react";
+// Agregamos Calendar a los iconos
+import { Plus, Pencil, Trash2, Monitor, Terminal, Cpu, Calendar } from "lucide-react";
 
 const CategoryIcon = {
   software: Monitor,
@@ -16,7 +17,7 @@ export default async function ProjectsListPage() {
   const { data: projects } = await supabase
     .from("projects")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("project_date", { ascending: false }); // <-- OJO: Ahora ordenamos por la fecha real del proyecto
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -43,6 +44,7 @@ export default async function ProjectsListPage() {
             <tr className="border-b border-white/10 bg-white/5 text-xs uppercase font-mono text-text-muted">
               <th className="p-4">Proyecto</th>
               <th className="p-4">Categoría</th>
+              <th className="p-4">Fecha Real</th> {/* <--- NUEVA COLUMNA */}
               <th className="p-4">Stack</th>
               <th className="p-4 text-right">Acciones</th>
             </tr>
@@ -50,7 +52,7 @@ export default async function ProjectsListPage() {
           <tbody className="divide-y divide-white/10">
             {projects?.length === 0 ? (
               <tr>
-                <td colSpan={4} className="p-8 text-center text-text-muted font-mono">
+                <td colSpan={5} className="p-8 text-center text-text-muted font-mono">
                   No hay proyectos aún.
                 </td>
               </tr>
@@ -58,9 +60,12 @@ export default async function ProjectsListPage() {
               projects?.map((project) => {
                 const Icon = CategoryIcon[project.category as keyof typeof CategoryIcon] || Monitor;
                 
+                // Usamos project_date si existe, si no, usamos created_at como respaldo
+                const displayDate = project.project_date || project.created_at;
+
                 return (
                   <tr key={project.id} className="group hover:bg-white/5 transition-colors">
-                    {/* ... (Las columnas de datos siguen igual) ... */}
+                    
                     <td className="p-4">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded bg-background border border-white/10 overflow-hidden relative flex-shrink-0">
@@ -88,6 +93,19 @@ export default async function ProjectsListPage() {
                       </span>
                     </td>
 
+                    {/* --- NUEVA CELDA: FECHA --- */}
+                    <td className="p-4">
+                        <div className="flex items-center gap-2 text-text-muted">
+                            <Calendar className="w-4 h-4 text-secondary" />
+                            <span className="font-mono text-xs">
+                                {new Date(displayDate).toLocaleDateString('es-CL', {
+                                    month: 'short',
+                                    year: 'numeric'
+                                })}
+                            </span>
+                        </div>
+                    </td>
+
                     <td className="p-4">
                       <div className="flex flex-wrap gap-1">
                         {project.tech_stack?.slice(0, 3).map((tech: string) => (
@@ -96,11 +114,8 @@ export default async function ProjectsListPage() {
                       </div>
                     </td>
 
-                    {/* --- AQUÍ ESTÁN LOS CAMBIOS EN LOS BOTONES --- */}
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        
-                        {/* 1. Botón Editar (Ahora es un Link) */}
                         <Link 
                           href={`/dashboard/projects/${project.id}/edit`} 
                           className="p-2 hover:text-primary text-text-muted transition-colors" 
@@ -109,17 +124,11 @@ export default async function ProjectsListPage() {
                           <Pencil className="w-4 h-4" />
                         </Link>
 
-                        {/* 2. Botón Eliminar (Ahora es un Formulario) */}
                         <form action={deleteProject.bind(null, project.id)}>
-                          <button 
-                            type="submit"
-                            className="p-2 hover:text-error text-text-muted transition-colors" 
-                            title="Eliminar"
-                          >
+                          <button type="submit" className="p-2 hover:text-error text-text-muted transition-colors" title="Eliminar">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </form>
-
                       </div>
                     </td>
                   </tr>

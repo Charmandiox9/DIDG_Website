@@ -70,6 +70,16 @@ export default function NewProjectPage() {
           <input name="tech_stack" placeholder="React, Node.js, ESP32, MQTT" className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none transition-colors" />
         </div>
 
+        <div className="space-y-2">
+          <label className="text-xs font-mono text-primary uppercase">Fecha del Proyecto</label>
+          <input 
+            type="date" 
+            name="project_date" 
+            className="w-full bg-background/50 border border-white/10 rounded p-3 text-white focus:border-primary/50 outline-none block"
+          />
+          <p className="text-[10px] text-text-muted">Cuándo finalizaste o lanzaste este proyecto.</p>
+        </div>
+
         {/* Links */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">

@@ -131,11 +131,13 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                     </div>
                 </div>
 
+                {/* Metadata */}
                 <div>
-                    <h4 className="text-sm font-mono text-text-muted uppercase mb-3 border-b border-white/10 pb-1">Fecha</h4>
+                    <h4 className="text-sm font-mono text-text-muted uppercase mb-3 border-b border-white/10 pb-1">Fecha Realización</h4>
                     <div className="flex items-center gap-2 text-sm text-white">
                         <Calendar className="w-4 h-4 text-secondary" />
-                        {new Date(project.created_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long' })}
+                        {/* Usamos project_date si existe, si no created_at */}
+                        {new Date(project.project_date || project.created_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long' })}
                     </div>
                 </div>
 

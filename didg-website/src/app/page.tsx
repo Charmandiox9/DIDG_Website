@@ -71,7 +71,7 @@ export default async function Home() {
             href="/contact" 
             className="px-8 py-4 bg-transparent border border-white/10 text-text-main font-mono rounded hover:bg-white/5 transition-all duration-300"
           >
-            Contactar_
+            Contactar
           </Link>
         </div>
 
