@@ -23,6 +23,8 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
 
   if (!subject) return <div className="p-20 text-center text-white">Asignatura no encontrada</div>;
 
+  const s = subject as any;
+
   return (
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto animate-in fade-in duration-500">
       
@@ -33,8 +35,8 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
         </Link>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-                <span className="text-secondary font-mono text-sm mb-2 block">{(subject as any).semesters?.name} — {subject.code}</span>
-                <h1 className="text-4xl font-display font-bold text-white">{subject.name}</h1>
+                <span className="text-secondary font-mono text-sm mb-2 block">{s.semesters?.name} — {s.code}</span>
+                <h1 className="text-4xl font-display font-bold text-white">{s.name}</h1>
             </div>
         </div>
       </div>
