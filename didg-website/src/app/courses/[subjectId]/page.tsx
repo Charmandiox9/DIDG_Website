@@ -33,7 +33,7 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
         </Link>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-                <span className="text-secondary font-mono text-sm mb-2 block">{subject.semesters?.name} — {subject.code}</span>
+                <span className="text-secondary font-mono text-sm mb-2 block">{(subject as any).semesters?.name} — {subject.code}</span>
                 <h1 className="text-4xl font-display font-bold text-white">{subject.name}</h1>
             </div>
         </div>
