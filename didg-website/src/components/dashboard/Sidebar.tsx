@@ -8,7 +8,8 @@ import {
   GraduationCap, 
   Settings, 
   LogOut,
-  MessageSquare // <--- Nuevo ícono
+  MessageSquare, // <--- Nuevo ícono
+  Users
 } from "lucide-react";
 import { cn } from "@/core/utils/cn";
 import { createClient } from "@/infrastructure/supabase/client";
@@ -17,6 +18,7 @@ import { useRouter } from "next/navigation";
 const menuItems = [
   { name: "Resumen", href: "/dashboard", icon: LayoutDashboard },
   { name: "Mensajes", href: "/dashboard/messages", icon: MessageSquare }, // <--- NUEVO ITEM
+  { name: "Estudiantes", href: "/dashboard/students", icon: Users },
   { name: "Proyectos", href: "/dashboard/projects", icon: FolderKanban },
   { name: "Ayudantías", href: "/dashboard/courses", icon: GraduationCap },
   { name: "Configuración", href: "/dashboard/settings", icon: Settings },

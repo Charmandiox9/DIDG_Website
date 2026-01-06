@@ -30,7 +30,11 @@ export function AyudantiaCard({ ayu, subjectId }: Props) {
         <div className="flex flex-col items-center justify-center p-3 bg-white/5 rounded border border-white/5 min-w-[80px] h-fit">
           <Calendar className="w-4 h-4 text-primary mb-1" />
           <span className="text-xs font-mono text-text-muted">
-            {new Date(ayu.date).toLocaleDateString()}
+            {new Date(ayu.date).toLocaleDateString("es-CL", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
           </span>
         </div>
 
