@@ -1,11 +1,23 @@
 "use server";
 
-import { createClient } from "@/infrastructure/supabase/server";
+// 1. Importamos createClient directamente de la librería base, NO de tu infraestructura
+import { createClient } from "@supabase/supabase-js"; 
 import { revalidatePath } from "next/cache";
-import * as XLSX from "xlsx"; // Importamos la librería
+import * as XLSX from "xlsx";
 
 export async function uploadGrades(formData: FormData) {
-  const supabase = await createClient();
+  // 2. Creamos el cliente ADMIN (Bypass RLS)
+  // Este cliente tiene permisos de "Dios" para leer y escribir todo.
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!, // <--- CLAVE IMPORTANTE
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
 
   // 1. Obtener datos del Formulario
   const subjectId = formData.get("subject_id") as string;
@@ -16,32 +28,28 @@ export async function uploadGrades(formData: FormData) {
     throw new Error("Faltan datos requeridos.");
   }
 
-  // 2. Leer el archivo (Buffer)
+  // 2. Leer el archivo
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  // 3. Parsear Excel/CSV
+  // 3. Parsear Excel
   const workbook = XLSX.read(buffer, { type: "buffer" });
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
-  
-  // Convertimos a JSON: [{ rut: "111-1", nota: 7.0 }, ...]
   const rows: any[] = XLSX.utils.sheet_to_json(worksheet);
 
-  // 4. Procesar fila por fila
   let successCount = 0;
   let errors: string[] = [];
 
   for (const row of rows) {
-    // Normalizamos las claves (por si escriben "RUT", "Rut", "rut")
     const rut = row["rut"] || row["RUT"] || row["Rut"];
     const score = row["nota"] || row["NOTA"] || row["Nota"] || row["score"];
 
-    if (!rut || !score) continue; // Saltar filas vacías
+    if (!rut || !score) continue;
 
     try {
-      // A. Buscar ID del usuario por su RUT
-      const { data: profile } = await supabase
+      // A. Buscar ID del usuario (Usamos supabaseAdmin para evitar bloqueos de lectura)
+      const { data: profile } = await supabaseAdmin
         .from("profiles")
         .select("id")
         .eq("rut", String(rut).trim())
@@ -52,9 +60,8 @@ export async function uploadGrades(formData: FormData) {
         continue;
       }
 
-      // B. Buscar o Crear Matrícula (Enrollment)
-      // Primero intentamos buscarla
-      let { data: enrollment } = await supabase
+      // B. Buscar o Crear Matrícula
+      let { data: enrollment } = await supabaseAdmin
         .from("enrollments")
         .select("id")
         // @ts-ignore
@@ -62,9 +69,9 @@ export async function uploadGrades(formData: FormData) {
         .eq("subject_id", subjectId)
         .single();
 
-      // Si no existe matrícula, LA CREAMOS automáticamente
       if (!enrollment) {
-        const { data: newEnrollment, error: enrollError } = await supabase
+        // AQUÍ FALLABA ANTES: Ahora supabaseAdmin sí tiene permiso para crearla
+        const { data: newEnrollment, error: enrollError } = await supabaseAdmin
           .from("enrollments")
           // @ts-ignore
           .insert({ student_id: profile.id, subject_id: subjectId })
@@ -77,11 +84,11 @@ export async function uploadGrades(formData: FormData) {
 
       // C. Insertar la Nota
       // @ts-ignore
-      const { error: gradeError } = await supabase.from("grades").insert({
+      const { error: gradeError } = await supabaseAdmin.from("grades").insert({
         enrollment_id: (enrollment as any)!.id,
         name: evaluationName,
-        score: parseFloat(score), // Asegurar que sea número
-        weight: 1.0 // Por defecto
+        score: parseFloat(score),
+        weight: 1.0 
       });
 
       if (gradeError) throw gradeError;
@@ -96,7 +103,6 @@ export async function uploadGrades(formData: FormData) {
 
   revalidatePath("/dashboard/grades");
   
-  // Retornamos el reporte
   return { 
     success: true, 
     count: successCount, 
