@@ -1,7 +1,7 @@
 "use client";
 
 import { sendMessage } from "@/core/actions/contact";
-import { Github, MapPin, Send, Loader2, CheckCircle2, Terminal } from "lucide-react"; // Importamos Github y Terminal
+import { Github, MapPin, Send, Loader2, CheckCircle2, Terminal } from "lucide-react";
 import { useState, useRef } from "react";
 import Link from "next/link";
 
@@ -16,10 +16,7 @@ export default function ContactPage() {
       await sendMessage(formData);
       setIsSuccess(true);
       formRef.current?.reset();
-      
-      // Resetear mensaje de éxito después de 5 segs
       setTimeout(() => setIsSuccess(false), 5000);
-      
     } catch (error) {
       alert("Error al enviar el mensaje. Inténtalo más tarde.");
     } finally {
@@ -31,7 +28,7 @@ export default function ContactPage() {
     <div className="min-h-screen py-20 px-4 max-w-5xl mx-auto flex items-center justify-center">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">
         
-        {/* Columna Izquierda: Info & Decoración */}
+        {/* Columna Izquierda (Sin cambios)... */}
         <div className="space-y-8">
           <div>
             <h1 className="text-4xl font-display font-bold text-white mb-4">
@@ -43,7 +40,6 @@ export default function ContactPage() {
           </div>
 
           <div className="space-y-6">
-            {/* Opción 1: GitHub en lugar de Email */}
             <Link 
                 href="https://github.com/Charmandiox9" 
                 target="_blank"
@@ -65,7 +61,6 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Decoración Cyber */}
           <div className="p-6 rounded-xl bg-black/40 border border-primary/20 font-mono text-xs text-primary/80 mt-10 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-primary/20 animate-pulse"></div>
             <div className="space-y-2">
@@ -83,7 +78,6 @@ export default function ContactPage() {
         {/* Columna Derecha: Formulario */}
         <div className="bg-surface/30 backdrop-blur-md border border-white/10 p-8 rounded-2xl relative overflow-hidden shadow-2xl">
           
-          {/* Overlay de Éxito */}
           {isSuccess && (
             <div className="absolute inset-0 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in-95 z-10">
               <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border border-emerald-500/20">
@@ -106,6 +100,17 @@ export default function ContactPage() {
             <div className="space-y-2">
               <label className="text-xs font-mono text-primary uppercase tracking-wider">Enlace (Email)</label>
               <input name="email" type="email" required className="w-full bg-background/50 border border-white/10 rounded-lg p-3 text-white focus:border-primary/50 focus:bg-background/80 outline-none transition-all placeholder:text-white/20" placeholder="contacto@ejemplo.com" />
+            </div>
+
+            {/* --- NUEVO CAMPO: ASUNTO --- */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono text-primary uppercase tracking-wider">Asunto</label>
+              <input 
+                name="subject" 
+                required 
+                className="w-full bg-background/50 border border-white/10 rounded-lg p-3 text-white focus:border-primary/50 focus:bg-background/80 outline-none transition-all placeholder:text-white/20" 
+                placeholder="Propuesta de colaboración..." 
+              />
             </div>
 
             <div className="space-y-2">

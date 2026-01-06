@@ -2,19 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FolderKanban, GraduationCap, Settings, LogOut } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  FolderKanban, 
+  GraduationCap, 
+  Settings, 
+  LogOut,
+  MessageSquare // <--- Nuevo ícono
+} from "lucide-react";
 import { cn } from "@/core/utils/cn";
 import { createClient } from "@/infrastructure/supabase/client";
 import { useRouter } from "next/navigation";
 
 const menuItems = [
   { name: "Resumen", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Mensajes", href: "/dashboard/messages", icon: MessageSquare }, // <--- NUEVO ITEM
   { name: "Proyectos", href: "/dashboard/projects", icon: FolderKanban },
   { name: "Ayudantías", href: "/dashboard/courses", icon: GraduationCap },
   { name: "Configuración", href: "/dashboard/settings", icon: Settings },
 ];
 
 export function Sidebar() {
+  // ... (El resto del código se mantiene idéntico)
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -39,7 +48,8 @@ export function Sidebar() {
       <nav className="flex-1 py-6 px-3 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          // Lógica para marcar activo si la ruta empieza con el href (para subpáginas)
+          const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard");
           
           return (
             <Link
