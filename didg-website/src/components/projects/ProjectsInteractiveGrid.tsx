@@ -18,12 +18,6 @@ export function ProjectsInteractiveGrid({ projects, availableTags }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("ALL");
 
-  // --- AGREGA ESTO ---
-  console.log("PROYECTOS RECIBIDOS:", projects);
-  if (projects.length > 0) {
-     console.log("PRIMER PROYECTO TECH_STACK:", projects[0].tech_stack);
-  }
-
   // 1. Obtener tags únicos automáticamente desde 'tech_stack'
   const tags = useMemo(() => {
     if (availableTags) return availableTags;

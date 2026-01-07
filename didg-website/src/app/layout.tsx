@@ -43,6 +43,10 @@ export default function RootLayout({
         </main>
 
         <Footer />
+
+        <div className="fixed inset-0 z-[-1] bg-background">
+          <div className="absolute inset-0 bg-grid opacity-20" />
+        </div>
         
       </body>
     </html>
