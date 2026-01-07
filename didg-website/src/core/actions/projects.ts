@@ -3,69 +3,17 @@
 import { createClient } from "@/infrastructure/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
-
-// Validamos los datos antes de tocar la DB
-const ProjectSchema = z.object({
-  title: z.string().min(3),
-  description: z.string().min(10),
-  category: z.enum(["software", "script", "hardware"]),
-  repo_url: z.string().url().optional().or(z.literal("")),
-  demo_url: z.string().url().optional().or(z.literal("")),
-  tech_stack: z.string(), // Vendrá como string separado por comas "React, Node, IoT"
-});
-
-// --- BORRAR PROYECTO ---
-export async function deleteProject(id: string) {
-  const supabase = await createClient();
-  
-  // Opcional: Borrar imágenes del storage si quisieras ser muy limpio
-  // Pero por ahora solo borramos el registro de la DB
-  const { error } = await supabase.from("projects").delete().eq("id", id);
-
-  if (error) throw new Error("Error al eliminar proyecto");
-  
-  revalidatePath("/dashboard/projects");
-  revalidatePath("/projects"); // También actualizar la vista pública
-}
-
-// --- ACTUALIZAR PROYECTO ---
-export async function updateProject(id: string, formData: FormData) {
-  const supabase = await createClient();
-  
-  const rawData = {
-    title: formData.get("title"),
-    description: formData.get("description"),
-    category: formData.get("category"),
-    repo_url: formData.get("repo_url"),
-    demo_url: formData.get("demo_url"),
-    tech_stack: formData.get("tech_stack"),
-  };
-
-  // Convertir stack a array
-  const techArray = rawData.tech_stack?.toString().split(",").map(t => t.trim()) || [];
-
-  // Solo actualizamos campos de texto (la imagen la dejamos igual por simplicidad en este paso)
-  // @ts-ignore
-  const { error } = await supabase.from("projects").update({
-    title: rawData.title as string,
-    description: rawData.description as string,
-    category: rawData.category as any,
-    tech_stack: techArray,
-    repo_url: rawData.repo_url as string,
-    demo_url: rawData.demo_url as string,
-  }).eq("id", id);
-
-  if (error) throw new Error("Error al actualizar");
-
-  revalidatePath("/dashboard/projects");
-  redirect("/dashboard/projects");
-}
+// 1. IMPORTANTE: Importar estos dos tipos
+import { Database } from "@/types/supabase";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export async function createProject(formData: FormData) {
-  const supabase = await createClient();
+  // 2. SOLUCIÓN DEL ERROR:
+  // Forzamos a TypeScript a tratar este cliente como uno que conoce tu Database.
+  // El "as SupabaseClient<Database>" elimina el error de 'never'.
+  const supabase = (await createClient()) as unknown as SupabaseClient<Database>;
 
-  // 1. Extraer datos del formulario
+  // 1. Extraer datos básicos
   const rawData = {
     title: formData.get("title"),
     description: formData.get("description"),
@@ -73,9 +21,12 @@ export async function createProject(formData: FormData) {
     repo_url: formData.get("repo_url"),
     demo_url: formData.get("demo_url"),
     tech_stack: formData.get("tech_stack"),
+    project_date: formData.get("project_date"),
+    is_published: formData.get("is_published") === "on",
+    is_featured: formData.get("is_featured") === "on",
   };
 
-  // 2. Manejo de Imagen (Si existe)
+  // 2. Manejo de Imagen
   const imageFile = formData.get("image") as File;
   let imageUrl = null;
 
@@ -93,7 +44,6 @@ export async function createProject(formData: FormData) {
       throw new Error("Fallo al subir la imagen");
     }
 
-    // Obtener URL pública
     const { data: { publicUrl } } = supabase.storage
       .from("portfolio-images")
       .getPublicUrl(filePath);
@@ -101,26 +51,27 @@ export async function createProject(formData: FormData) {
     imageUrl = publicUrl;
   }
 
-  
-
   // 3. Insertar en Base de Datos
-  // Generamos el slug a partir del título (ej: "Mi Proyecto" -> "mi-proyecto")
   const slug = rawData.title?.toString().toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "") || "proyecto-" + Date.now();
-  
-  // Convertir tech_stack de "React, Node" a array ["React", "Node"]
   const techArray = rawData.tech_stack?.toString().split(",").map(t => t.trim()) || [];
 
-  // @ts-ignore
+  // 4. INSERTAR
+  // Ahora TypeScript sabe que "category" debe ser del tipo Enum específico, así que lo casteamos
   const { error: dbError } = await supabase.from("projects").insert({
     title: rawData.title as string,
     slug: slug,
     description: rawData.description as string,
-    category: rawData.category as any, // TypeScript se quejará un poco aquí si no casteamos
+    // Casteamos a 'any' o al tipo del Enum para evitar conflictos de string vs Enum literal
+    category: rawData.category as Database["public"]["Enums"]["project_category"], 
     tech_stack: techArray,
     repo_url: rawData.repo_url as string,
     demo_url: rawData.demo_url as string,
     image_urls: imageUrl ? [imageUrl] : [],
-    is_featured: false,
+    
+    // Estos campos ahora son reconocidos gracias al cast del inicio
+    project_date: rawData.project_date as string,
+    is_published: rawData.is_published,
+    is_featured: rawData.is_featured,
   });
 
   if (dbError) {
@@ -128,8 +79,57 @@ export async function createProject(formData: FormData) {
     throw new Error("Error al guardar en base de datos: " + dbError.message);
   }
 
-  // 4. Actualizar caché y redirigir
   revalidatePath("/dashboard");
   revalidatePath("/projects");
+  revalidatePath("/");
+  
   redirect("/dashboard/projects");
+}
+
+// --- ACTUALIZAR PROYECTO ---
+export async function updateProject(id: string, formData: FormData) {
+  const supabase = (await createClient()) as unknown as SupabaseClient<Database>;
+  
+  const rawData = {
+    title: formData.get("title"),
+    description: formData.get("description"),
+    category: formData.get("category"),
+    repo_url: formData.get("repo_url"),
+    demo_url: formData.get("demo_url"),
+    tech_stack: formData.get("tech_stack"),
+    project_date: formData.get("project_date"),
+    // Para checkboxes en update, si no viene es false
+    is_published: formData.get("is_published") === "on", 
+    is_featured: formData.get("is_featured") === "on",
+  };
+
+  const techArray = rawData.tech_stack?.toString().split(",").map(t => t.trim()) || [];
+
+  const { error } = await supabase.from("projects").update({
+    title: rawData.title as string,
+    description: rawData.description as string,
+    category: rawData.category as any,
+    tech_stack: techArray,
+    repo_url: rawData.repo_url as string,
+    demo_url: rawData.demo_url as string,
+    project_date: rawData.project_date as string,
+    is_published: rawData.is_published,
+    is_featured: rawData.is_featured,
+  }).eq("id", id);
+
+  if (error) throw new Error("Error al actualizar");
+
+  revalidatePath("/dashboard/projects");
+  revalidatePath("/projects");
+  redirect("/dashboard/projects");
+}
+
+// --- BORRAR PROYECTO ---
+export async function deleteProject(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("projects").delete().eq("id", id);
+  if (error) throw new Error("Error al eliminar proyecto");
+  
+  revalidatePath("/dashboard/projects");
+  revalidatePath("/projects");
 }
