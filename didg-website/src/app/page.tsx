@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Code2, Database, TerminalSquare, BookOpen, GraduationCap } from "lucide-react"; // Nuevos iconos
 import { createClient } from "@/infrastructure/supabase/server";
 import { CodeTerminal } from "@/components/home/CodeTerminal";
+import { CharmanderPet } from "@/components/home/CharmanderPet";
 import { ProjectsInteractiveGrid } from "@/components/projects/ProjectsInteractiveGrid";
 
 export default async function Home() {
@@ -25,6 +26,9 @@ export default async function Home() {
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 overflow-hidden space-y-24 pb-20">
+
+      {/* --- AQUÍ AGREGAS TU CHARMANDER --- */}
+      <CharmanderPet />
       
       {/* --- HERO SECTION --- */}
       <div className="relative z-10 text-center max-w-4xl mx-auto space-y-8 pt-20">

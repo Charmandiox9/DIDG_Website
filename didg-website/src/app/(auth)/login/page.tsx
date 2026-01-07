@@ -9,10 +9,10 @@ import { createClient } from "@/infrastructure/supabase/client";
 import { Lock, Mail, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-// 1. Esquema de validación con Zod
+// 1. ESQUEMA: Volvemos a validar que sea un EMAIL real
 const loginSchema = z.object({
-  email: z.string().email("Formato de correo inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  email: z.string().email("Debes ingresar un correo válido"),
+  password: z.string().min(1, "La contraseña es obligatoria"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -22,7 +22,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Inicializamos el cliente de Supabase
   const supabase = createClient();
 
   const {
@@ -38,31 +37,33 @@ export default function LoginPage() {
     setError(null);
 
     try {
+      // 2. LÓGICA DIRECTA: Sin transformaciones raras
+      // Enviamos el correo y la contraseña tal cual los escribió el usuario.
+      
       const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
+        email: data.email.trim().toLowerCase(), // Limpiamos espacios y mayúsculas por si acaso
+        password: data.password, // Se envía tal cual (El alumno debe escribir su RUT)
       });
 
       if (error) {
         throw error;
       }
 
-      // Login exitoso: Redirigir según rol (lo haremos luego, por ahora al home)
       router.push("/");
-      router.refresh(); // Actualiza la UI para mostrar que estamos logueados
+      router.refresh();
       
     } catch (err: any) {
       console.error(err);
-      setError("Credenciales inválidas. Verifica tu correo y contraseña.");
+      setError("Credenciales incorrectas. Verifica tu correo y contraseña.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="bg-surface/50 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl relative overflow-hidden group">
+    <div className="bg-surface/50 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl relative overflow-hidden group w-full max-w-md mx-auto">
       
-      {/* Decoración Cyber (Borde brillante animado en hover) */}
+      {/* Decoración Cyber */}
       <div className="absolute inset-0 border-2 border-primary/0 group-hover:border-primary/50 transition-colors duration-500 rounded-2xl pointer-events-none" />
       
       <div className="text-center mb-8">
@@ -79,17 +80,17 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10">
         
-        {/* Input Email */}
+        {/* Input EMAIL */}
         <div className="space-y-2">
           <label className="text-xs font-mono text-primary uppercase tracking-wider">
-            Correo Electrónico
+            Correo Institucional
           </label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
             <input
               {...register("email")}
               type="email"
-              placeholder="admin@didg.dev"
+              placeholder="nombre@dominio.cl"
               className="w-full bg-background/50 border border-white/10 rounded px-10 py-3 text-sm text-white placeholder:text-text-muted/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
             />
           </div>
@@ -100,7 +101,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        {/* Input Password */}
+        {/* Input PASSWORD */}
         <div className="space-y-2">
           <label className="text-xs font-mono text-primary uppercase tracking-wider">
             Contraseña
@@ -119,6 +120,12 @@ export default function LoginPage() {
               <AlertCircle className="w-3 h-3" /> {errors.password.message}
             </p>
           )}
+          {/* MENSAJE DE AYUDA CLAVE */}
+          <div className="flex justify-end">
+             <p className="text-[10px] text-text-muted opacity-70 italic">
+               Estudiantes: Usar RUT sin puntos ni guion como contraseña.
+             </p>
+          </div>
         </div>
 
         {/* Mensaje de Error General */}
@@ -138,7 +145,7 @@ export default function LoginPage() {
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              AUTENTICANDO...
+              ENTRANDO...
             </>
           ) : (
             "INICIAR SESIÓN"

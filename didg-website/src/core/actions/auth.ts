@@ -14,5 +14,24 @@ export async function signOutAction() {
   revalidatePath("/", "layout");
 
   // 3. Redirigir al Login
-  redirect("/login");
+  redirect("/");
+}
+
+export async function login(email: string, password: string) {
+  const supabase = await createClient();
+
+  // Intentamos iniciar sesión con lo que sea que nos mandó el formulario
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    // Retornamos el error para mostrarlo en el frontend
+    return { error: error.message };
+  }
+
+  // Si sale bien, revalidamos y redirigimos
+  revalidatePath("/", "layout");
+  redirect("/dashboard"); // O '/home', a donde quieras que vayan al entrar
 }
