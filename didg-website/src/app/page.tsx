@@ -31,7 +31,7 @@ export default async function Home() {
       <CharmanderPet />
       
       {/* --- HERO SECTION --- */}
-      <div className="relative z-10 text-center max-w-4xl mx-auto space-y-8 pt-20">
+      <div className="relative z-10 text-center max-w-4xl mx-auto space-y-2 pt-2">
         
         {/* Efectos de fondo (Luces Hero) */}
         <div className="absolute top-1/4 -left-20 w-72 h-72 bg-primary/20 rounded-full blur-[100px] -z-10" />
@@ -88,7 +88,7 @@ export default async function Home() {
             <Database className="w-4 h-4 text-secondary" /> Supabase
           </div>
           <div className="flex items-center justify-center gap-2">
-            <span className="text-primary font-bold">NEXT</span> .js 14
+            <span className="text-primary font-bold">Node</span>.js 
           </div>
           <div className="flex items-center justify-center gap-2">
             <span className="text-secondary font-bold">SOLID</span> Principles
