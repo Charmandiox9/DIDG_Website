@@ -3,16 +3,43 @@ import { Card } from "@/components/ui/card";
 import { Code2, BookOpen, Users } from "lucide-react";
 
 export default async function DashboardPage() {
-  const supabase = await createClient(); // <--- AGREGAR AWAIT AQUÍ
+  const supabase = await createClient(); 
   
-  // Obtenemos conteos reales
-  const { count: projectsCount } = await supabase.from('projects').select('*', { count: 'exact', head: true });
-  const { count: ayudantiasCount } = await supabase.from('ayudantias').select('*', { count: 'exact', head: true });
-  
+  // 1. Proyectos
+  const { count: projectsCount } = await supabase
+    .from('projects')
+    .select('*', { count: 'exact', head: true });
+
+  // 2. Ayudantías
+  const { count: ayudantiasCount } = await supabase
+    .from('ayudantias')
+    .select('*', { count: 'exact', head: true });
+
+  // 3. NUEVO: Estudiantes (Filtrando por rol)
+  const { count: studentsCount } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+    .eq('role', 'student'); // <--- El filtro mágico
+
   const stats = [
-    { name: "Proyectos Publicados", value: projectsCount || 0, icon: Code2, color: "text-primary" },
-    { name: "Ayudantías Activas", value: ayudantiasCount || 0, icon: BookOpen, color: "text-secondary" },
-    { name: "Estudiantes", value: "0", icon: Users, color: "text-emerald-400" },
+    { 
+        name: "Proyectos Publicados", 
+        value: projectsCount || 0, 
+        icon: Code2, 
+        color: "text-primary" 
+    },
+    { 
+        name: "Ayudantías Activas", 
+        value: ayudantiasCount || 0, 
+        icon: BookOpen, 
+        color: "text-secondary" 
+    },
+    { 
+        name: "Estudiantes Registrados", 
+        value: studentsCount || 0, // <--- Usamos el valor real aquí
+        icon: Users, 
+        color: "text-emerald-400" 
+    },
   ];
 
   return (
@@ -36,6 +63,7 @@ export default async function DashboardPage() {
                             <Icon className="w-6 h-6" />
                         </div>
                     </div>
+                    {/* Efecto de brillo al pasar el mouse */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </div>
             )

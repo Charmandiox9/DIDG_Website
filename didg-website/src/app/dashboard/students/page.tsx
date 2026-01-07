@@ -1,5 +1,6 @@
 import { createClient } from "@/infrastructure/supabase/server";
 import { StudentRegisterForm } from "@/components/dashboard/StudentRegisterForm";
+import { StudentsTable } from "@/components/dashboard/StudentsTable";
 import { Users } from "lucide-react";
 
 export default async function StudentsPage() {
@@ -25,32 +26,7 @@ export default async function StudentsPage() {
         <div className="lg:col-span-2 space-y-4">
            <h2 className="text-xl font-bold text-white">Listado de Alumnos</h2>
            {/* Aquí podrías iterar sobre 'students' para mostrarlos en una tabla */}
-           {students?.length === 0 ? (
-             <div className="p-8 border border-dashed border-white/10 rounded-xl text-center text-text-muted">
-               No hay estudiantes registrados.
-             </div>
-           ) : (
-             <div className="bg-surface/30 rounded-xl border border-white/10 p-4">
-                <table className="w-full text-left text-sm text-text-muted">
-                    <thead>
-                        <tr className="border-b border-white/10">
-                            <th className="pb-2">Nombre</th>
-                            <th className="pb-2">RUT</th>
-                            <th className="pb-2">Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {students?.map((stu: any) => (
-                            <tr key={stu.id} className="border-b border-white/5 last:border-0 hover:bg-white/5">
-                                <td className="py-3 text-white">{stu.full_name}</td>
-                                <td className="py-3 font-mono">{stu.rut}</td>
-                                <td className="py-3">{stu.email}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-             </div>
-           )}
+           <StudentsTable students={students || []} />
         </div>
 
         {/* COLUMNA DERECHA: El formulario que creamos */}

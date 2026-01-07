@@ -35,3 +35,39 @@ export async function login(email: string, password: string) {
   revalidatePath("/", "layout");
   redirect("/dashboard"); // O '/home', a donde quieras que vayan al entrar
 }
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const supabase = await createClient();
+
+  // 1. Obtener el usuario actual para saber su email
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user || !user.email) {
+    return { error: "No hay sesión activa." };
+  }
+
+  // 2. VERIFICACIÓN: Intentamos iniciar sesión con la contraseña actual
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword
+  });
+
+  if (verifyError) {
+    // Si falla, es que escribió mal su clave actual
+    return { error: "La contraseña actual no es correcta." };
+  }
+
+  // 3. ACTUALIZACIÓN: Si llegamos aquí, la clave actual era buena. Procedemos.
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword
+  });
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  // Revalidar para asegurar que todo esté fresco
+  revalidatePath("/", "layout");
+  
+  return { success: true };
+}

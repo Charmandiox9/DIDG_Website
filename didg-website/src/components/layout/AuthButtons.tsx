@@ -1,6 +1,6 @@
 import { createClient } from "@/infrastructure/supabase/server";
 import Link from "next/link";
-import { LayoutDashboard, GraduationCap, LogIn, LogOut } from "lucide-react";
+import { LayoutDashboard, GraduationCap, LogIn, LogOut, UserCog } from "lucide-react";
 import { signOutAction } from "@/core/actions/auth"; // <--- 1. IMPORTAR LA ACCIÓN
 
 export async function AuthButtons() {
@@ -43,6 +43,14 @@ export async function AuthButtons() {
           Dashboard
         </Link>
       )}
+
+      <Link 
+        href="/profile" 
+        className="flex items-center gap-2 px-4 py-2 text-sm font-bold border border-white/20 text-text-muted hover:text-white rounded-full hover:bg-white/5 transition-colors"
+      >
+        <UserCog className="w-4 h-4" />
+        Perfil
+      </Link>
 
       {/* BOTÓN ESTUDIANTE: Mis Notas */}
       {/* Aparece si eres 'student' o 'admin' (para probar) */}
