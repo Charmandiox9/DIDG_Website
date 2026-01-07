@@ -2,62 +2,139 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================
+   1. DEFINICIÓN DE VARIABLES
+   ========================================= */
+
+/* MODO CLARO (Moderno y limpio) */
 :root {
-  --foreground-rgb: 226, 232, 240;
+  /* CORREGIDO: #cccccc es muy oscuro y viejo. Usamos Slate-100 para modernidad */
+  --background: #f1f5f9; 
+  --foreground: #334155; 
+  
+  --surface: #ffffff;
+  
+  /* Rejilla negra sutil (6%) para que no moleste la lectura */
+  --grid-color: rgba(0, 0, 0, 0.08); 
+
+  --primary: #0891b2; /* Cyan oscuro */
+  --primary-glow: rgba(8, 145, 178, 0.2);
+  --secondary: #7c3aed;
+  
+  --text-main: #334155;
+  --text-muted: #64748b;
 }
 
+/* MODO OSCURO (RESTAURADO AL ORIGINAL EXACTO) */
+.dark {
+  /* RESTAURADO: Antes tenías #09090b. #191919 era muy gris. */
+  --background: #191919; 
+  
+  --foreground: #e2e8f0;
+  
+  --surface: #18181b; 
+  
+  /* RESTAURADO: Tu color de grilla original exacto */
+  --grid-color: rgba(39, 39, 42, 0.3);
+
+  --primary: #00f0ff; 
+  --primary-glow: rgba(0, 240, 255, 0.5);
+  --secondary: #7000ff;
+  
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
+}
+
+/* =========================================
+   2. ESTILOS GLOBALES & BACKGROUND (BODY)
+   ========================================= */
+
 body {
-  color: rgb(var(--foreground-rgb));
-  background: #09090b;
+  background-color: var(--background);
+  color: var(--text-main);
   min-height: 100vh;
-  /* Grid tecnológico de fondo */
+  font-family: var(--font-inter), Arial, sans-serif;
+  
+  /* Transición suave para el cambio de tema */
+  transition: background-color 0.5s ease, color 0.5s ease;
+
+  /* GRID PRINCIPAL (GLOBAL) */
   background-image: 
-    radial-gradient(circle at 50% 0%, #18181b 0%, transparent 70%),
-    linear-gradient(to right, rgba(39, 39, 42, 0.3) 1px, transparent 1px), 
-    linear-gradient(to bottom, rgba(39, 39, 42, 0.3) 1px, transparent 1px);
+    /* 1. Viñeta central (Brillo) */
+    radial-gradient(circle at 50% 0%, var(--surface) 0%, transparent 70%),
+    
+    /* 2. Líneas Verticales */
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px), 
+    
+    /* 3. Líneas Horizontales */
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+    
   background-size: 100% 100%, 50px 50px, 50px 50px;
   background-position: top center;
   background-attachment: fixed;
 }
 
-/* Scrollbar personalizada */
+/* =========================================
+   3. CLASE DE UTILIDAD .bg-grid
+   ========================================= */
+.bg-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+}
+
+/* =========================================
+   4. SCROLLBAR
+   ========================================= */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: var(--surface);
   border-radius: 4px;
+  border: 1px solid var(--background);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f0ff;
+  background: var(--primary);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* =========================================
+   5. ANIMACIONES (Tus originales)
+   ========================================= */
+@layer utilities {
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 4s ease infinite;
+  }
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+  .animate-music-bar-1 { animation: music-bar 1s ease-in-out infinite alternate; }
+  .animate-music-bar-2 { animation: music-bar 1.2s ease-in-out infinite alternate; }
+  .animate-music-bar-3 { animation: music-bar 0.8s ease-in-out infinite alternate; }
+  
+  .glow-text {
+    text-shadow: 0 0 20px var(--primary-glow);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.bg-grid {
-  background-size: 40px 40px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes music-bar {
+  0% { height: 4px; }
+  100% { height: 16px; }
 }

@@ -37,7 +37,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 bg-surface border-r border-white/10 h-screen fixed left-0 top-0 flex flex-col hidden md:flex">
+    <aside className="w-64 bg-surface border-r border-white/10 h-screen fixed left-0 top-0 flex flex-col hidden md:flex pt-16">
       
       {/* Header del Sidebar */}
       <div className="h-16 flex items-center px-6 border-b border-white/10">
