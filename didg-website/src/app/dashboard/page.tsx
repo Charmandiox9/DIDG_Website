@@ -1,5 +1,4 @@
 import { createClient } from "@/infrastructure/supabase/server";
-import { Card } from "@/components/ui/card"; 
 import { Code2, BookOpen, Users } from "lucide-react";
 
 export default async function DashboardPage() {
@@ -15,11 +14,11 @@ export default async function DashboardPage() {
     .from('ayudantias')
     .select('*', { count: 'exact', head: true });
 
-  // 3. NUEVO: Estudiantes (Filtrando por rol)
+  // 3. Estudiantes
   const { count: studentsCount } = await supabase
     .from('profiles')
     .select('*', { count: 'exact', head: true })
-    .eq('role', 'student'); // <--- El filtro mágico
+    .eq('role', 'student');
 
   const stats = [
     { 
@@ -36,16 +35,18 @@ export default async function DashboardPage() {
     },
     { 
         name: "Estudiantes Registrados", 
-        value: studentsCount || 0, // <--- Usamos el valor real aquí
+        value: studentsCount || 0, 
         icon: Users, 
-        color: "text-emerald-400" 
+        // CAMBIO: emerald-500 para mejor contraste en Light Mode
+        color: "text-emerald-500" 
     },
   ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-display font-bold text-white">Dashboard General</h1>
+        {/* Título adaptable */}
+        <h1 className="text-3xl font-display font-bold text-text-main">Dashboard General</h1>
         <p className="text-text-muted font-mono mt-2">Bienvenido al centro de control, Arquitecto.</p>
       </div>
 
@@ -53,18 +54,21 @@ export default async function DashboardPage() {
         {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-                <div key={stat.name} className="p-6 rounded-xl bg-surface border border-white/5 shadow-lg relative overflow-hidden group">
+                // Card: bg-surface y border-text-main/10
+                <div key={stat.name} className="p-6 rounded-xl bg-surface border border-text-main/10 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-mono text-text-muted uppercase">{stat.name}</p>
-                            <p className="text-3xl font-bold text-white mt-2">{stat.value}</p>
+                            <p className="text-sm font-mono text-text-muted uppercase font-bold">{stat.name}</p>
+                            {/* Valor: text-text-main */}
+                            <p className="text-3xl font-bold text-text-main mt-2">{stat.value}</p>
                         </div>
-                        <div className={`p-3 rounded-lg bg-white/5 ${stat.color}`}>
+                        {/* Icon Container: bg-background/50 (contraste sutil contra bg-surface) */}
+                        <div className={`p-3 rounded-lg bg-background/50 border border-text-main/5 ${stat.color}`}>
                             <Icon className="w-6 h-6" />
                         </div>
                     </div>
-                    {/* Efecto de brillo al pasar el mouse */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    {/* Efecto de brillo adaptable (via-text-main/5) */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-text-main/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
                 </div>
             )
         })}
