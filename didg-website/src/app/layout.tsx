@@ -8,6 +8,7 @@ import { EasterEgg } from "@/components/layout/EasterEgg";
 import { CommandMenu } from "@/components/layout/CommandMenu";
 // 1. IMPORTAR EL PROVIDER
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { GlobalRequestButton } from "@/components/feedback/GlobalRequestButton";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains" });
@@ -50,7 +51,7 @@ export default function RootLayout({
             <main className="flex-grow pt-16 relative z-10">
               {children}
             </main>
-
+            <GlobalRequestButton />
             <Footer />
 
             {/* El fondo también va dentro para que reaccione al cambio de color */}

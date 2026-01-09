@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Terminal, Zap, Briefcase, GraduationCap, MapPin, FileText, Award, Globe } from "lucide-react";
 import type { Metadata } from "next";
+import { CharmanderPet } from "@/components/home/CharmanderPet";
 
 export const metadata: Metadata = {
   title: "Sobre Mí | Daniel Durán",
@@ -38,6 +39,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen py-20 px-4 max-w-6xl mx-auto space-y-20 animate-in fade-in duration-700">
+      <CharmanderPet />
       
       {/* SECCIÓN 1: HEADER & BIO */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
