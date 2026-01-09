@@ -7,9 +7,10 @@ import { AyudantiaTimelineItem } from "./AyudantiaTimelineItem";
 interface Props {
   ayudantias: any[];
   subjectName: string;
+  bookmarkedIds?: Set<string>;
 }
 
-export function AyudantiaList({ ayudantias, subjectName }: Props) {
+export function AyudantiaList({ ayudantias, subjectName, bookmarkedIds }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"ALL" | "PDF" | "VIDEO">("ALL");
 
@@ -97,6 +98,7 @@ export function AyudantiaList({ ayudantias, subjectName }: Props) {
                     publicUrl={publicUrl || ""} 
                     isPdf={isPdf || false} 
                     subjectName={subjectName}
+                    isBookmarked={bookmarkedIds?.has(ayu.id) || false}
                 />
             );
         })}

@@ -2,19 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link"; // <--- Importamos Link
-import { User, Shield, CreditCard, GraduationCap, Lock, Calculator, ExternalLink, BookMarked, Library } from "lucide-react";
+import { User, Shield, CreditCard, GraduationCap, Lock, Calculator, ExternalLink, BookMarked, Library, Video, Calendar } from "lucide-react";
 import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 import { GradeSimulator } from "@/components/tools/GradeSimulator";
 import { ResourceCard } from "@/components/resources/ResourceCard";
+import { BookmarkAyudantiaButton } from "@/components/courses/BookmarkAyudantiaButton";
 import { cn } from "@/core/utils/cn";
 
 interface ProfileTabsProps {
   profile: any;
   email: string | undefined;
   bookmarks: any[];
+  savedAyudantias?: any[];
 }
 
-export function ProfileTabs({ profile: p, email, bookmarks }: ProfileTabsProps) {
+export function ProfileTabs({ profile: p, email, bookmarks, savedAyudantias = [] }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<"info" | "grades" | "library">("info");
 
   // Verificar si puede ver notas (Estudiante o Admin)
@@ -164,21 +166,59 @@ export function ProfileTabs({ profile: p, email, bookmarks }: ProfileTabsProps) 
 
         {/* PESTAÑA 3: BIBLIOTECA */}
         {activeTab === "library" && (
-          <div>
-              {bookmarks.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {bookmarks.map(res => (
-                        // Reutilizamos la tarjeta. isBookmarked es true porque estamos en favoritos
-                        <ResourceCard key={res.id} resource={res} isBookmarked={true} />
-                    ))}
-                  </div>
+          <div className="space-y-8">
+            <div>
+                {bookmarks.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {bookmarks.map(res => (
+                          // Reutilizamos la tarjeta. isBookmarked es true porque estamos en favoritos
+                          <ResourceCard key={res.id} resource={res} isBookmarked={true} />
+                      ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-20 border border-dashed border-text-main/10 rounded-xl bg-surface/30">
+                        <BookMarked className="w-10 h-10 text-text-muted mx-auto mb-4 opacity-50" />
+                        <h3 className="text-text-main font-bold">Tu biblioteca está vacía</h3>
+                        <p className="text-text-muted text-sm mt-1">Guarda recursos útiles para encontrarlos rápido.</p>
+                    </div>
+                )}
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-text-main mb-4 border-l-4 border-secondary pl-3">
+                 Ayudantías Guardadas ({savedAyudantias.length})
+              </h3>
+              
+              {savedAyudantias.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {savedAyudantias.map((ayu) => (
+                    // TARJETA SIMPLIFICADA PARA PERFIL
+                    <div key={ayu.id} className="bg-surface border border-text-main/10 rounded-xl p-4 flex flex-col hover:border-secondary/30 transition-all relative">
+                       
+                       <div className="flex justify-between items-start mb-2">
+                          <span className="text-[10px] uppercase font-bold text-secondary bg-secondary/10 px-2 py-1 rounded">
+                             {ayu.subjects?.name || "Asignatura"}
+                          </span>
+                          <BookmarkAyudantiaButton ayudantiaId={ayu.id} initialState={true} />
+                       </div>
+
+                       <h4 className="font-bold text-text-main mb-1 line-clamp-1">{ayu.title}</h4>
+                       
+                       <div className="flex items-center gap-3 text-xs text-text-muted mt-auto pt-2">
+                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3"/> {new Date(ayu.date).toLocaleDateString('es-CL', { timeZone: 'UTC' })}</span>
+                          {ayu.video_url && <span className="flex items-center gap-1 text-red-400"><Video className="w-3 h-3"/> Video</span>}
+                       </div>
+                       
+                       {/* Link para ir a la asignatura */}
+                       <a href={`/courses/${ayu.subject_id}`} className="absolute inset-0 z-10" />
+                       {/* Nota: Asegúrate de que el botón de bookmark tenga z-20 para que funcione el click */}
+                    </div>
+                  ))}
+                </div>
               ) : (
-                  <div className="text-center py-20 border border-dashed border-text-main/10 rounded-xl bg-surface/30">
-                      <BookMarked className="w-10 h-10 text-text-muted mx-auto mb-4 opacity-50" />
-                      <h3 className="text-text-main font-bold">Tu biblioteca está vacía</h3>
-                      <p className="text-text-muted text-sm mt-1">Guarda recursos útiles para encontrarlos rápido.</p>
-                  </div>
+                <p className="text-text-muted text-sm italic">No tienes ayudantías guardadas.</p>
               )}
+           </div>
+          
           </div>
         )}
 

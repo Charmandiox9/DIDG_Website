@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { CharmanderPet } from "@/components/home/CharmanderPet";
 import { ProfileTabs } from "@/components/profile/ProfileTabs"; // <--- Importamos el nuevo componente
 import { getUserBookmarks } from "@/core/actions/bookmarks";
+import { getUserAyudantiaBookmarks } from "@/core/actions/bookmarks-ayudantias";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -20,6 +21,7 @@ export default async function ProfilePage() {
     .single();
 
   const bookmarks = await getUserBookmarks();
+  const savedAyudantias = await getUserAyudantiaBookmarks();
 
   return (
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto animate-in fade-in">
@@ -30,7 +32,12 @@ export default async function ProfilePage() {
 
       <div className="mt-8">
         {/* Renderizamos el componente cliente con las pestañas */}
-        <ProfileTabs profile={profile} email={user.email} bookmarks={bookmarks} />
+        <ProfileTabs 
+          profile={profile} 
+          email={user.email} 
+          bookmarks={bookmarks} 
+          savedAyudantias={savedAyudantias}
+        />
       </div>
 
     </div>

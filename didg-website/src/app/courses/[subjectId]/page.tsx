@@ -39,6 +39,18 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
     return b.title.localeCompare(a.title, undefined, { numeric: true, sensitivity: 'base' });
   });
 
+  const { data: { user } } = await supabase.auth.getUser();
+  const bookmarkedSet = new Set<string>();
+
+  if (user) {
+    const { data: bookmarks } = await supabase
+      .from("ayudantia_bookmarks")
+      .select("ayudantia_id")
+      .eq("user_id", user.id);
+    
+    (bookmarks as any[])?.forEach(b => bookmarkedSet.add(b.ayudantia_id));
+  }
+
   return (
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto animate-in fade-in duration-500">
       <CharmanderPet />
@@ -75,6 +87,7 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
         <AyudantiaList 
           ayudantias={ayus_list} 
           subjectName={s.name}
+          bookmarkedIds={bookmarkedSet}
         />
         
         {ayus_list.length === 0 && (

@@ -8,6 +8,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { DownloadButton } from "@/components/courses/DownloadButton";
 import { ReportButton } from "@/components/feedback/ReportButton";
+import { BookmarkAyudantiaButton } from "./BookmarkAyudantiaButton";
 import { cn } from "@/core/utils/cn";
 
 interface Props {
@@ -15,9 +16,10 @@ interface Props {
   publicUrl: string;
   isPdf: boolean;
   subjectName?: string;
+  isBookmarked?: boolean;
 }
 
-export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "General" }: Props) {
+export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "General", isBookmarked = false }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   // Configuración de Markdown (Adaptada a temas)
@@ -53,8 +55,16 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
         <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-xl border border-text-main/10 bg-surface/50 hover:border-secondary/30 transition-all shadow-lg backdrop-blur-sm relative overflow-hidden flex flex-col group-hover:shadow-xl">
           
           <div className="flex items-center justify-between mb-2">
-            <time className="font-mono text-xs text-text-muted">{new Date(ayu.date).toLocaleDateString()}</time>
+            <time 
+              suppressHydrationWarning 
+              className="font-mono text-xs text-text-muted"
+            >
+              {/* RECOMENDACIÓN: Forzar formato español */}
+              {new Date(ayu.date).toLocaleDateString('es-CL', { timeZone: 'UTC' })}
+            </time>
             {ayu.video_url && <Video className="w-4 h-4 text-red-400" />}
+
+            <BookmarkAyudantiaButton ayudantiaId={ayu.id} initialState={isBookmarked} />
           </div>
 
           <h3 className="text-xl font-bold text-text-main mb-2">{ayu.title}</h3>
@@ -102,7 +112,7 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
             <div className="p-6 border-b border-text-main/10 flex justify-between items-start bg-surface/30">
               <div>
                 <div className="flex items-center gap-3 text-xs font-mono text-text-muted mb-2">
-                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3"/> {new Date(ayu.date).toLocaleDateString()}</span>
+                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3"/> {new Date(ayu.date).toLocaleDateString('es-CL', { timeZone: 'UTC' })}</span>
                     {ayu.video_url && <span className="flex items-center gap-1 text-red-400"><Video className="w-3 h-3"/> Grabación disponible</span>}
                 </div>
                 <h2 className="text-2xl font-bold text-text-main">{ayu.title}</h2>
