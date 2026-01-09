@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/infrastructure/supabase/client";
-import { Lock, User, Terminal, Save, ShieldCheck, AlertCircle } from "lucide-react";
+import { Lock, User, Terminal, Save, ShieldCheck, AlertCircle, Loader2, RefreshCw } from "lucide-react";
+import { checkBotStatus } from "@/core/actions/telegram";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,26 @@ export default function SettingsPage() {
       (e.target as HTMLFormElement).reset();
     }
     setLoading(false);
+  };
+
+  // ESTADO PARA EL BOT
+  const [botStatus, setBotStatus] = useState<'loading' | 'online' | 'offline'>('loading');
+  const [botName, setBotName] = useState("");
+
+  // Efecto para chequear el bot al montar el componente
+  useEffect(() => {
+    checkStatus();
+  }, []);
+
+  const checkStatus = async () => {
+    setBotStatus('loading');
+    const res = await checkBotStatus();
+    if (res.ok) {
+      setBotStatus('online');
+      setBotName(res.username || "Bot Activo");
+    } else {
+      setBotStatus('offline');
+    }
   };
 
   return (
@@ -121,6 +142,9 @@ export default function SettingsPage() {
                         <h3 className="font-bold text-text-main">Estado de Servicios</h3>
                         <p className="text-xs text-text-muted">Monitor de integraciones</p>
                     </div>
+                    <button onClick={checkStatus} className="p-2 hover:bg-text-main/5 rounded-full text-text-muted transition-colors">
+                        <RefreshCw className={`w-4 h-4 ${botStatus === 'loading' ? 'animate-spin' : ''}`} />
+                    </button>
                 </div>
 
                 <div className="space-y-4">
@@ -134,11 +158,26 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="flex items-center justify-between p-3 bg-background/50 rounded border border-text-main/5">
-                        <span className="text-sm text-text-muted font-mono font-bold">Telegram Bot</span>
-                        <span className="flex items-center gap-2 text-xs text-emerald-500 font-bold uppercase bg-emerald-500/10 px-2 py-1 rounded">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            Activo
-                        </span>
+                        <div className="flex flex-col">
+                            <span className="text-sm text-text-muted font-mono font-bold">Telegram Bot</span>
+                            {botStatus === 'online' && <span className="text-[10px] text-text-muted">@{botName}</span>}
+                        </div>
+                        
+                        {botStatus === 'loading' ? (
+                            <span className="flex items-center gap-2 text-xs text-text-muted font-bold uppercase bg-text-main/5 px-2 py-1 rounded">
+                                <Loader2 className="w-3 h-3 animate-spin" /> Verificando...
+                            </span>
+                        ) : botStatus === 'online' ? (
+                            <span className="flex items-center gap-2 text-xs text-emerald-500 font-bold uppercase bg-emerald-500/10 px-2 py-1 rounded">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                Online
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-2 text-xs text-red-500 font-bold uppercase bg-red-500/10 px-2 py-1 rounded">
+                                <span className="w-2 h-2 rounded-full bg-red-500" />
+                                Offline
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex items-center justify-between p-3 bg-background/50 rounded border border-text-main/5">

@@ -2,6 +2,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
+import { sendTelegramMessage } from "@/core/lib/telegram";
 
 // --- CLIENTE ADMIN (Service Role) ---
 // Lo definimos aquí para reutilizarlo en todas las funciones
@@ -52,6 +53,20 @@ export async function registerStudent(prevState: any, formData: FormData) {
       };
     }
     return { success: false, message: "Error: " + error.message };
+  }
+
+  if (!error) {
+    // 🔥 DISPARAR NOTIFICACIÓN AL BOT
+    const msg = `🎓 <b>NUEVO ALUMNO MATRICULADO</b>\n\n` +
+                `👤 <b>Nombre:</b> ${fullName}\n` +
+                `📧 <b>Email:</b> ${email}\n` +
+                `🆔 <b>RUT:</b> ${rut}\n` +
+                `📅 <b>Fecha:</b> ${new Date().toLocaleString('es-CL')}`;
+    
+    // No usamos await para no bloquear la UI del usuario
+    sendTelegramMessage(msg); 
+
+    return { success: true, message: "Estudiante registrado correctamente." };
   }
 
   revalidatePath("/dashboard/students");
