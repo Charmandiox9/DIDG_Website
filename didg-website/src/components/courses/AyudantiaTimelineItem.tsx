@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { DownloadButton } from "@/components/courses/DownloadButton";
+import { ReportButton } from "@/components/feedback/ReportButton";
 import { cn } from "@/core/utils/cn";
 
 interface Props {
@@ -145,6 +146,12 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
                             <Eye className="w-3 h-3" /> Ver PDF
                         </a>
                     )}
+                    <div className="ml-auto">
+                        <ReportButton 
+                        resourceTitle={ayu.title} 
+                        subjectName={subjectName}
+                        />
+                    </div>
                   </div>
                 ) : (
                   <span className="text-xs text-text-muted italic flex items-center gap-1">

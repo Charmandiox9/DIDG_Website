@@ -9,9 +9,10 @@ interface Props {
   onClose: () => void;
   type: 'request' | 'report';
   resourceTitle?: string; // Si es reporte, pasamos el nombre del archivo
+  subjectName?: string; // Pasamos el nombre de la materia
 }
 
-export function FeedbackModal({ isOpen, onClose, type, resourceTitle }: Props) {
+export function FeedbackModal({ isOpen, onClose, type, resourceTitle, subjectName }: Props) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -23,7 +24,7 @@ export function FeedbackModal({ isOpen, onClose, type, resourceTitle }: Props) {
     if (!message.trim()) return;
 
     setLoading(true);
-    await submitFeedback({ type, message, resourceTitle });
+    await submitFeedback({ type, message, resourceTitle, subjectName });
     setLoading(false);
     setSent(true);
     

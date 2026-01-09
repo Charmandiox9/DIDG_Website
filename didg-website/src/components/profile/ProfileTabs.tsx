@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link"; // <--- Importamos Link
-import { User, Shield, CreditCard, GraduationCap, Lock, Calculator, ExternalLink } from "lucide-react";
+import { User, Shield, CreditCard, GraduationCap, Lock, Calculator, ExternalLink, BookMarked, Library } from "lucide-react";
 import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 import { GradeSimulator } from "@/components/tools/GradeSimulator";
+import { ResourceCard } from "@/components/resources/ResourceCard";
 import { cn } from "@/core/utils/cn";
 
 interface ProfileTabsProps {
   profile: any;
   email: string | undefined;
+  bookmarks: any[];
 }
 
-export function ProfileTabs({ profile: p, email }: ProfileTabsProps) {
-  const [activeTab, setActiveTab] = useState<"info" | "grades">("info");
+export function ProfileTabs({ profile: p, email, bookmarks }: ProfileTabsProps) {
+  const [activeTab, setActiveTab] = useState<"info" | "grades" | "library">("info");
 
   // Verificar si puede ver notas (Estudiante o Admin)
   const canViewGrades = p?.role === "student" || p?.role === "admin";
@@ -87,6 +89,19 @@ export function ProfileTabs({ profile: p, email }: ProfileTabsProps) {
           <Calculator className="w-4 h-4" />
           Simulador (Herramienta)
         </button>
+
+        <button
+            onClick={() => setActiveTab("library")}
+            className={cn(
+                "flex items-center gap-2 px-4 py-2 text-sm font-bold border-b-2 transition-all whitespace-nowrap",
+                activeTab === "library"
+                ? "border-pink-500 text-pink-500"
+                : "border-transparent text-text-muted hover:text-text-main hover:bg-surface/50 rounded-t-lg"
+            )}
+          >
+            <Library className="w-4 h-4" />
+            Mi Biblioteca ({bookmarks.length})
+          </button>
       </div>
 
       {/* --- CONTENIDO DE LAS PESTAÑAS --- */}
@@ -144,6 +159,26 @@ export function ProfileTabs({ profile: p, email }: ProfileTabsProps) {
                 </p>
             </div>
             <GradeSimulator />
+          </div>
+        )}
+
+        {/* PESTAÑA 3: BIBLIOTECA */}
+        {activeTab === "library" && (
+          <div>
+              {bookmarks.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {bookmarks.map(res => (
+                        // Reutilizamos la tarjeta. isBookmarked es true porque estamos en favoritos
+                        <ResourceCard key={res.id} resource={res} isBookmarked={true} />
+                    ))}
+                  </div>
+              ) : (
+                  <div className="text-center py-20 border border-dashed border-text-main/10 rounded-xl bg-surface/30">
+                      <BookMarked className="w-10 h-10 text-text-muted mx-auto mb-4 opacity-50" />
+                      <h3 className="text-text-main font-bold">Tu biblioteca está vacía</h3>
+                      <p className="text-text-muted text-sm mt-1">Guarda recursos útiles para encontrarlos rápido.</p>
+                  </div>
+              )}
           </div>
         )}
 

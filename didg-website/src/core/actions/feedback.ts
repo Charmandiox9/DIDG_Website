@@ -7,9 +7,10 @@ interface FeedbackInput {
   type: 'request' | 'report';
   message: string;
   resourceTitle?: string; // Opcional, solo para reportes
+  subjectName?: string; // Opcional, nombre de la materia
 }
 
-export async function submitFeedback({ type, message, resourceTitle }: FeedbackInput) {
+export async function submitFeedback({ type, message, resourceTitle, subjectName }: FeedbackInput) {
   const supabase = createClient();
 
   // 1. Guardar en Base de Datos
@@ -33,6 +34,7 @@ export async function submitFeedback({ type, message, resourceTitle }: FeedbackI
   telegramText += `💬 <i>"${message}"</i>\n`;
   
   if (resourceTitle) {
+    telegramText += `\n🏷️ <b>Materia:</b> ${subjectName || "No especificada"}`;
     telegramText += `\n📄 <b>Recurso afectado:</b> ${resourceTitle}`;
   }
 

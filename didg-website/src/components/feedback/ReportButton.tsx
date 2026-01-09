@@ -6,9 +6,10 @@ import { FeedbackModal } from "./FeedbackModal";
 
 interface Props {
   resourceTitle: string;
+  subjectName: string;
 }
 
-export function ReportButton({ resourceTitle }: Props) {
+export function ReportButton({ resourceTitle, subjectName }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -26,6 +27,7 @@ export function ReportButton({ resourceTitle }: Props) {
         onClose={() => setIsOpen(false)} 
         type="report"
         resourceTitle={resourceTitle}
+        subjectName={subjectName}
       />
     </>
   );

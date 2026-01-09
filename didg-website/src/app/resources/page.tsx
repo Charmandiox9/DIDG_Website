@@ -1,3 +1,4 @@
+import { createClient } from "@/infrastructure/supabase/server";
 import { getExtraResources } from "@/core/actions/resources";
 import { ResourceFeed } from "@/components/resources/ResourceFeed"; // <--- Importamos el componente cliente
 import { CharmanderPet } from "@/components/home/CharmanderPet";
@@ -6,7 +7,30 @@ import { Sparkles } from "lucide-react";
 export const dynamic = 'force-dynamic';
 
 export default async function ResourcesPage() {
+  const supabase = await createClient();
   const resources = await getExtraResources();
+
+  // 1. Obtener usuario actual
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // 2. Obtener IDs de los favoritos de ESTE usuario
+  let bookmarkedIds = new Set<string>();
+  
+  if (user) {
+    const { data: bookmarks } = await supabase
+        .from("resource_bookmarks")
+        .select("resource_id")
+        .eq("user_id", user.id);
+    
+    // Creamos un Set para búsqueda O(1) super rápida
+    bookmarks?.forEach((b: any) => bookmarkedIds.add(b.resource_id));
+  }
+
+  // 3. Inyectar la propiedad isBookmarked a cada recurso
+  const resourcesWithStatus = resources?.map((res: any) => ({
+    ...res,
+    isBookmarked: bookmarkedIds.has(res.id)
+  }));
 
   return (
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-6xl mx-auto animate-in fade-in duration-500">
@@ -43,7 +67,7 @@ export default async function ResourcesPage() {
 
       {/* FEED INTERACTIVO (Cliente) */}
       {/* Le pasamos los datos iniciales para que el cliente maneje el filtrado */}
-      <ResourceFeed resources={resources || []} />
+      <ResourceFeed resources={resourcesWithStatus || []} />
 
     </div>
   );

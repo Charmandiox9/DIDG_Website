@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Code2, BookOpen, PenTool, ExternalLink, Download, Maximize2, X, Hash, Globe } from "lucide-react";
 import { trackDownload } from "@/core/actions/analytics";
+import { BookmarkButton } from "./BookmarkButton";
 
 interface Resource {
   id: string;
@@ -14,7 +15,7 @@ interface Resource {
   external_url?: string;
 }
 
-export function ResourceCard({ resource }: { resource: Resource }) {
+export function ResourceCard({ resource, isBookmarked = false }: { resource: Resource, isBookmarked?: boolean }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // CONFIG: Longitud máxima antes de truncar
@@ -58,8 +59,13 @@ export function ResourceCard({ resource }: { resource: Resource }) {
         
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
-          <div className="p-2 bg-background rounded-lg border border-text-main/5 group-hover:bg-primary/10 transition-colors">
-            {getIcon()}
+          <div className="flex gap-2"> {/* Wrapper para icono + bookmark */}
+             <div className="p-2 bg-background rounded-lg border border-text-main/5 group-hover:bg-primary/10 transition-colors">
+               {getIcon()}
+             </div>
+             
+             {/* AQUÍ VA EL BOTÓN DE FAVORITOS */}
+             <BookmarkButton resourceId={resource.id} initialState={isBookmarked} />
           </div>
           <div className="flex gap-1 flex-wrap justify-end max-w-[60%]">
             {resource.tags?.slice(0, 2).map(tag => ( // Solo mostramos 2 tags en la tarjeta pequeña

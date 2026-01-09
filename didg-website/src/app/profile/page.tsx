@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { CharmanderPet } from "@/components/home/CharmanderPet";
 import { ProfileTabs } from "@/components/profile/ProfileTabs"; // <--- Importamos el nuevo componente
+import { getUserBookmarks } from "@/core/actions/bookmarks";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -18,6 +19,8 @@ export default async function ProfilePage() {
     .eq("id", user.id)
     .single();
 
+  const bookmarks = await getUserBookmarks();
+
   return (
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto animate-in fade-in">
       {/* Mascota y Breadcrumbs se mantienen globales */}
@@ -27,7 +30,7 @@ export default async function ProfilePage() {
 
       <div className="mt-8">
         {/* Renderizamos el componente cliente con las pestañas */}
-        <ProfileTabs profile={profile} email={user.email} />
+        <ProfileTabs profile={profile} email={user.email} bookmarks={bookmarks} />
       </div>
 
     </div>
