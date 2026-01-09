@@ -1,32 +1,47 @@
 "use server";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const DEFAULT_CHAT_ID = process.env.TELEGRAM_CHAT_ID; // Tu ID personal (fallback)
 const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-// 1. Enviar Mensaje Genérico
-export async function sendTelegramMessage(text: string) {
-  if (!BOT_TOKEN || !CHAT_ID) return;
+// ACEPTA targetChatId COMO SEGUNDO ARGUMENTO OPCIONAL
+export async function sendTelegramMessage(text: string, targetChatId?: number | string) {
+  if (!BOT_TOKEN) return;
+
+  // Si no pasamos ID, usa el tuyo por defecto.
+  const finalChatId = targetChatId || DEFAULT_CHAT_ID;
+
+  if (!finalChatId) {
+      console.error("❌ Telegram Error: No chat ID provided");
+      return;
+  }
 
   try {
-    await fetch(`${BASE_URL}/sendMessage`, {
+    const res = await fetch(`${BASE_URL}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chat_id: CHAT_ID,
+        chat_id: finalChatId,
         text: text,
         parse_mode: "HTML",
       }),
     });
+    
+    if (!res.ok) {
+        const errText = await res.text();
+        console.error("❌ Telegram API Error:", errText);
+    } else {
+        console.log(`✅ Mensaje enviado a ${finalChatId}`);
+    }
+
   } catch (error) {
-    console.error("Telegram Send Error:", error);
+    console.error("❌ Telegram Network Error:", error);
   }
 }
 
-// 2. Verificar Estado del Bot (Para tu Dashboard)
+// ... getBotStatus igual que antes
 export async function getBotStatus() {
   if (!BOT_TOKEN) return { ok: false };
-
   try {
     const res = await fetch(`${BASE_URL}/getMe`, { cache: 'no-store' });
     const data = await res.json();
