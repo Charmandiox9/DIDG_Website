@@ -1,100 +1,114 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 
-// Tiempos (en milisegundos)
-const AFK_TIME = 5000; // 5 segundos para pruebas (cámbialo a 30000 o 60000 para prod)
-const ATTACK_DURATION = 1200; // Lo que dure tu gif de ataque
+const AFK_TIME = 120000; 
+const ATTACK_DURATION = 1600; 
 
-// URLs de ejemplo (Reemplázalas con tus archivos locales en /public)
 const SPRITES = {
-  idle: "/assets/idle.gif", // Saltando
-  sleeping: "/assets/sleep.gif", // Durmiendo
-  attacking: "/assets/attack.gif", // Fuego (usando uno genérico, busca uno de ataque real)
+  idle: "/assets/idle.gif",
+  sleeping: "/assets/sleep.gif",
+  attacking: "/assets/attack.gif",
 };
 
 export function CharmanderPet() {
   const [status, setStatus] = useState<"idle" | "sleeping" | "attacking">("idle");
+  
+  // 1. TRUCO: Usamos un Ref para rastrear el estado en tiempo real
+  // Esto permite que los event listeners sepan el estado exacto sin depender de re-renders
+  const statusRef = useRef(status);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Lógica de detección AFK
+  // 2. Sincronizamos el Ref cada vez que el estado visual cambia
   useEffect(() => {
-    const resetTimer = () => {
-      // Si está atacando, no interrumpimos la animación
-      if (status === "attacking") return;
+    statusRef.current = status;
+  }, [status]);
 
-      // Si estaba durmiendo y se mueve el mouse, despierta
-      if (status === "sleeping") {
+  useEffect(() => {
+    const handleActivity = () => {
+      // LEEMOS EL REF, NO EL STATE
+      // Si está durmiendo, lo despertamos inmediatamente
+      if (statusRef.current === "sleeping") {
         setStatus("idle");
       }
 
-      // Reiniciamos el contador para volver a dormir
+      // Reiniciamos el timer
       if (timerRef.current) clearTimeout(timerRef.current);
       
       timerRef.current = setTimeout(() => {
-        setStatus((prev) => (prev === "attacking" ? prev : "sleeping"));
+        // Al momento de cumplirse el tiempo, verificamos el Ref
+        if (statusRef.current !== "attacking") {
+          setStatus("sleeping");
+        }
       }, AFK_TIME);
     };
 
-    // Escuchamos eventos de actividad
-    window.addEventListener("mousemove", resetTimer);
-    window.addEventListener("keydown", resetTimer);
-    window.addEventListener("click", resetTimer);
-    window.addEventListener("scroll", resetTimer);
+    // Eventos globales
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("keydown", handleActivity);
+    window.addEventListener("click", handleActivity);
+    window.addEventListener("scroll", handleActivity);
 
-    // Iniciar timer inicial
-    resetTimer();
+    // Timer inicial
+    handleActivity();
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      window.removeEventListener("mousemove", resetTimer);
-      window.removeEventListener("keydown", resetTimer);
-      window.removeEventListener("click", resetTimer);
-      window.removeEventListener("scroll", resetTimer);
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+      window.removeEventListener("click", handleActivity);
+      window.removeEventListener("scroll", handleActivity);
     };
-  }, [status]);
+  }, []); // Array vacío: Los listeners se crean UNA sola vez y usan el statusRef
 
-  // Manejar click en el Charmander
-  const handleClick = () => {
-    if (status === "attacking") return;
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    
+    // Usamos el ref para validación inmediata
+    if (statusRef.current === "attacking") return;
 
     setStatus("attacking");
 
-    // Volver a idle después de la animación de ataque
+    // Lógica post-ataque
     setTimeout(() => {
       setStatus("idle");
-      // Reiniciamos el timer AFK para que no se duerma inmediatamente después de atacar
+      // Reiniciamos timer post-ataque
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => setStatus("sleeping"), AFK_TIME);
+      timerRef.current = setTimeout(() => {
+          // Verificación segura con Ref
+          if (statusRef.current !== "attacking") {
+             setStatus("sleeping");
+          }
+      }, AFK_TIME);
     }, ATTACK_DURATION);
   };
 
   return (
     <div 
-      className="fixed bottom-4 left-4 z-50 cursor-pointer transition-transform hover:scale-110"
+      className="fixed bottom-4 left-4 z-50 cursor-pointer transition-transform hover:scale-110 active:scale-95"
       onClick={handleClick}
-      title={status === 'sleeping' ? 'Zzz... (Click para despertar)' : '¡Dracarys!'}
+      title={status === 'sleeping' ? '¡Despierta!' : 'Click para atacar'}
     >
-        {/* Burbuja de texto Zzz cuando duerme */}
+        {/* Burbuja Zzz */}
         {status === "sleeping" && (
-            <div className="absolute -top-6 right-0 animate-bounce text-xs font-mono text-white bg-black/50 px-2 py-1 rounded-full">
+            <div className="absolute -top-4 right-2 animate-bounce text-[10px] font-mono text-white bg-black/60 px-2 py-0.5 rounded-full border border-white/10 z-10">
                 Zzz...
             </div>
         )}
 
-      <div className="relative w-24 h-24 md:w-32 md:h-32">
+      <div className="relative w-16 h-16 md:w-20 md:h-20">
         <img
           src={SPRITES[status]}
-          alt="Charmander Pet"
-          className="w-full h-full object-contain pixelated drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)]"
-          style={{ imageRendering: "pixelated" }} // Para que el pixel art se vea nítido
+          alt="Charmander"
+          className="w-full h-full object-contain drop-shadow-lg select-none"
+          style={{ imageRendering: "pixelated" }} 
+          draggable={false}
         />
       </div>
       
-      {/* Efecto de luz roja en el suelo cuando ataca */}
+      {/* Efecto fuego */}
       {status === "attacking" && (
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-orange-500/50 blur-xl rounded-full animate-pulse" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-orange-500/40 blur-lg rounded-full animate-pulse" />
       )}
     </div>
   );

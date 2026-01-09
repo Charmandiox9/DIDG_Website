@@ -10,15 +10,17 @@ type Project = Database['public']['Tables']['projects']['Row'];
 interface ProjectCardProps {
   project: Project;
   className?: string;
-  onClick?: () => void; // Nuevo prop
+  onClick?: () => void;
 }
 
 export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
   return (
     <div 
-      onClick={onClick} // Acción al hacer click en la tarjeta
+      onClick={onClick}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl bg-surface/40 border border-white/10 transition-all duration-500 hover:shadow-[0_0_30px_rgba(0,240,255,0.1)] cursor-pointer hover:border-primary/50",
+        // 1. CAMBIO: bg-surface/50 y border-text-main/10 para que se vea el borde en modo claro
+        // 2. CAMBIO: Shadow dinámica usando var(--primary-glow)
+        "group relative flex flex-col overflow-hidden rounded-xl bg-surface/50 border border-text-main/10 transition-all duration-500 hover:shadow-[0_0_30px_var(--primary-glow)] cursor-pointer hover:border-primary/50",
         className
       )}
     >
@@ -37,10 +39,13 @@ export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
             <span className="text-text-muted font-mono text-xs">NO IMAGE DATA</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-80" />
+        
+        {/* Gradiente sobre la imagen: Usamos 'from-surface' para que se mezcle con la tarjeta */}
+        <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-90" />
         
         <div className="absolute top-4 right-4">
-          <span className="px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-background bg-primary rounded-sm shadow-[0_0_10px_rgba(0,240,255,0.5)]">
+          {/* Badge: Sombra dinámica */}
+          <span className="px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-background bg-primary rounded-sm shadow-[0_0_10px_var(--primary-glow)]">
             {project.category}
           </span>
         </div>
@@ -48,7 +53,8 @@ export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
 
       {/* Contenido */}
       <div className="flex flex-col flex-1 p-6 relative">
-        <h3 className="text-xl font-display font-bold text-white mb-2 group-hover:text-primary transition-colors">
+        {/* Título: text-text-main (Gris oscuro en Light, Blanco en Dark) */}
+        <h3 className="text-xl font-display font-bold text-text-main mb-2 group-hover:text-primary transition-colors">
           {project.title}
         </h3>
         
@@ -58,16 +64,17 @@ export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
 
         <div className="flex flex-wrap gap-2 mb-6">
           {project.tech_stack?.slice(0, 4).map((tech) => (
-            <span key={tech} className="px-2 py-1 text-[10px] font-mono text-primary/80 border border-primary/20 rounded bg-primary/5">
+            // Badges de tecnología: Ajustados para contraste
+            <span key={tech} className="px-2 py-1 text-[10px] font-mono text-primary border border-primary/20 rounded bg-primary/5">
               {tech}
             </span>
           ))}
         </div>
 
-        {/* Links Footer: stopPropagation evita abrir el modal si clicas directo en el link */}
-        <div className="flex items-center gap-4 mt-auto pt-4 border-t border-white/5" onClick={(e) => e.stopPropagation()}>
+        {/* Links Footer: Borde dinámico */}
+        <div className="flex items-center gap-4 mt-auto pt-4 border-t border-text-main/10" onClick={(e) => e.stopPropagation()}>
           {project.repo_url && (
-            <a href={project.repo_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-mono text-text-muted hover:text-white transition-colors">
+            <a href={project.repo_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-mono text-text-muted hover:text-text-main transition-colors">
               <Github className="w-4 h-4" /> CODE
             </a>
           )}

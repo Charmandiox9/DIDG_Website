@@ -11,11 +11,11 @@ export const revalidate = 3600;
 
 // 2. SEO: Importante para Google y compartir en redes.
 export const metadata: Metadata = {
-  title: "Daniel Durán | Ingeniero de Software & IoT",
+  title: "DIDG | Developer & Architect",
   description: "Portafolio de Daniel Durán. Estudiante de Ingeniería TI, Ayudante Universitario y Desarrollador Full Stack especializado en Next.js y IoT.",
   openGraph: {
     title: "Daniel Durán - Portfolio",
-    description: "Ayudante • Full-Stack • Ingeniería TI",
+    description: "Full-Stack • Ingeniería TI • Ayudante ",
     // images: ['/og-image.jpg'],
   }
 };

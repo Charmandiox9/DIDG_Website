@@ -3,7 +3,7 @@
 import { X, Github, ExternalLink, Calendar, Layers } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom"; // <--- 1. IMPORTAR ESTO
+import { createPortal } from "react-dom";
 import { Database } from "@/types/supabase";
 
 type Project = Database['public']['Tables']['projects']['Row'];
@@ -18,43 +18,38 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
 
   useEffect(() => {
     setMounted(true);
-    // Bloquear scroll al montar
     document.body.style.overflow = "hidden";
-    
     return () => {
-      // Desbloquear scroll al desmontar
       document.body.style.overflow = "unset";
     };
   }, []);
 
-  // Evitamos errores de hidratación esperando a que el cliente monte
   if (!mounted) return null;
 
   const p = project as any;
 
-  // 2. USAMOS createPortal PARA "TELETRANSPORTAR" EL MODAL AL BODY
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       
-      {/* Backdrop (Fondo oscuro) */}
+      {/* Backdrop: Mantenemos oscuro en ambos temas para enfocar la atención */}
       <div 
-        className="absolute inset-0 bg-black/90 backdrop-blur-md animate-in fade-in duration-200" 
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" 
         onClick={onClose}
       />
 
-      {/* Ventana Modal */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300">
+      {/* Ventana Modal: bg-background para adaptarse al tema */}
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-background border border-text-main/10 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 custom-scrollbar">
         
         {/* Botón Cerrar */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-white/10 rounded-full text-white transition-colors border border-white/10 backdrop-blur-sm"
+          className="absolute top-4 right-4 z-20 p-2 bg-surface/80 hover:bg-text-main/10 rounded-full text-text-main transition-colors border border-text-main/10 backdrop-blur-md shadow-lg"
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5" />
         </button>
 
         {/* 1. Imagen Grande (Hero) */}
-        <div className="relative h-64 md:h-80 w-full">
+        <div className="relative h-64 md:h-80 w-full group">
           {project.image_urls?.[0] ? (
             <Image
               src={project.image_urls[0]}
@@ -67,13 +62,16 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                 Sin Imagen
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
           
-          <div className="absolute bottom-6 left-6 md:left-10 z-10">
-            <span className="px-3 py-1 text-xs font-mono font-bold uppercase bg-primary text-background rounded mb-3 inline-block shadow-lg shadow-primary/20">
+          {/* GRADIENTE INTELIGENTE: Se funde con el color de fondo del tema */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+          
+          <div className="absolute bottom-6 left-6 md:left-10 z-10 pr-6">
+            <span className="px-3 py-1 text-xs font-mono font-bold uppercase bg-primary text-background rounded mb-3 inline-block shadow-[0_0_15px_var(--primary-glow)]">
                 {project.category}
             </span>
-            <h2 className="text-3xl md:text-5xl font-display font-bold text-white shadow-black drop-shadow-lg leading-tight">
+            {/* Título adaptable: Negro en Light, Blanco en Dark */}
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-text-main drop-shadow-lg leading-tight">
               {project.title}
             </h2>
           </div>
@@ -85,7 +83,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
             {/* Columna Izquierda: Descripción */}
             <div className="md:col-span-2 space-y-6">
                 <div>
-                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-text-main mb-2 flex items-center gap-2">
                         <Layers className="w-5 h-5 text-primary" />
                         Sobre el Proyecto
                     </h3>
@@ -98,8 +96,8 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                 {project.image_urls && project.image_urls.length > 1 && (
                     <div className="grid grid-cols-2 gap-2 mt-4">
                         {project.image_urls.slice(1).map((url, idx) => (
-                            <div key={idx} className="relative h-32 rounded-lg overflow-hidden border border-white/5 hover:border-primary/30 transition-colors">
-                                <Image src={url} alt="Gallery" fill className="object-cover" />
+                            <div key={idx} className="relative h-32 rounded-lg overflow-hidden border border-text-main/10 hover:border-primary/50 transition-colors cursor-pointer">
+                                <Image src={url} alt="Gallery" fill className="object-cover hover:scale-105 transition-transform duration-500" />
                             </div>
                         ))}
                     </div>
@@ -111,22 +109,23 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                 
                 <div className="flex flex-col gap-3">
                     {project.demo_url && (
-                        <a href={project.demo_url} target="_blank" className="w-full py-3 bg-primary hover:bg-white text-background font-bold rounded flex items-center justify-center gap-2 transition-all hover:scale-[1.02] shadow-lg shadow-primary/10">
+                        <a href={project.demo_url} target="_blank" className="w-full py-3 bg-primary hover:bg-primary/90 text-background font-bold rounded flex items-center justify-center gap-2 transition-all hover:scale-[1.02] shadow-[0_0_15px_var(--primary-glow)]">
                             <ExternalLink className="w-4 h-4" /> Ver Demo Live
                         </a>
                     )}
                     {project.repo_url && (
-                        <a href={project.repo_url} target="_blank" className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded flex items-center justify-center gap-2 transition-colors">
+                        // Botón secundario adaptable
+                        <a href={project.repo_url} target="_blank" className="w-full py-3 bg-surface hover:bg-text-main/5 border border-text-main/10 text-text-main rounded flex items-center justify-center gap-2 transition-colors">
                             <Github className="w-4 h-4" /> Ver Código
                         </a>
                     )}
                 </div>
 
                 <div>
-                    <h4 className="text-sm font-mono text-text-muted uppercase mb-3 border-b border-white/10 pb-1">Tecnologías</h4>
+                    <h4 className="text-sm font-mono text-text-muted uppercase mb-3 border-b border-text-main/10 pb-1">Tecnologías</h4>
                     <div className="flex flex-wrap gap-2">
                         {project.tech_stack?.map(tech => (
-                            <span key={tech} className="px-3 py-1 bg-surface border border-white/5 text-xs text-primary/90 rounded-full">
+                            <span key={tech} className="px-3 py-1 bg-surface border border-text-main/10 text-xs text-primary font-medium rounded-full">
                                 {tech}
                             </span>
                         ))}
@@ -135,10 +134,9 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
 
                 {/* Metadata */}
                 <div>
-                    <h4 className="text-sm font-mono text-text-muted uppercase mb-3 border-b border-white/10 pb-1">Fecha Realización</h4>
-                    <div className="flex items-center gap-2 text-sm text-white">
+                    <h4 className="text-sm font-mono text-text-muted uppercase mb-3 border-b border-text-main/10 pb-1">Fecha Realización</h4>
+                    <div className="flex items-center gap-2 text-sm text-text-main">
                         <Calendar className="w-4 h-4 text-secondary" />
-                        {/* Usamos project_date si existe, si no created_at */}
                         {new Date(p.project_date || project.created_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long' })}
                     </div>
                 </div>
@@ -148,6 +146,6 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
 
       </div>
     </div>,
-    document.body // <--- AQUÍ: Renderizamos en el body
+    document.body
   );
 }
