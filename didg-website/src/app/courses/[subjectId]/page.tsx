@@ -70,7 +70,10 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
       */}
       <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-text-main/10 before:to-transparent">
         
-        <AyudantiaList ayudantias={ayus_list} />
+        <AyudantiaList 
+          ayudantias={ayus_list} 
+          subjectName={s.name}
+        />
         
         {ayus_list.length === 0 && (
             // Estado vacío adaptable

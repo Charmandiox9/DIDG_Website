@@ -13,9 +13,10 @@ interface Props {
   ayu: any;
   publicUrl: string;
   isPdf: boolean;
+  subjectName?: string;
 }
 
-export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf }: Props) {
+export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "General" }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   // Configuración de Markdown (Adaptada a temas)
@@ -127,7 +128,13 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf }: Props) {
             <div className="p-6 border-t border-text-main/10 bg-surface/30 flex flex-wrap gap-3">
                 {ayu.material_url ? (
                   <div className="flex gap-2">
-                    <DownloadButton filePath={ayu.material_url} />
+                    <DownloadButton 
+                        filePath={ayu.material_url} 
+                        // Usamos el título de la ayudantía como nombre del archivo para el reporte
+                        fileName={ayu.title} 
+                        // Pasamos el nombre de la asignatura
+                        subjectName={subjectName}
+                    />
                     {isPdf && (
                         <a 
                             href={publicUrl}
