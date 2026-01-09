@@ -1,6 +1,8 @@
 // src/app/api/setup-webhook/route.ts
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
   
