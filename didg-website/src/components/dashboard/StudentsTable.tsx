@@ -12,24 +12,17 @@ interface Props {
 export function StudentsTable({ students }: Props) {
   const router = useRouter();
   
-  // Estado del estudiante en edición
   const [editingStudent, setEditingStudent] = useState<any | null>(null);
-  
-  // Para comparar si el email cambió
   const [originalEmail, setOriginalEmail] = useState(""); 
-  
   const [newPassword, setNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // ESTADO NUEVO: Controla si mostramos la advertencia de seguridad
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // --- ABRIR MODAL ---
   const openEditModal = (stu: any) => {
-    setEditingStudent({ ...stu }); // Copia editable
-    setOriginalEmail(stu.email);   // Guardamos el original para comparar
-    setNewPassword("");            // Limpiamos password
-    setShowConfirm(false);         // Reseteamos confirmación
+    setEditingStudent({ ...stu }); 
+    setOriginalEmail(stu.email);   
+    setNewPassword("");            
+    setShowConfirm(false);         
   };
 
   const handleDelete = async (id: string) => {
@@ -40,24 +33,18 @@ export function StudentsTable({ students }: Props) {
     setIsLoading(false);
   };
 
-  // --- PASO 1: PRE-VALIDACIÓN ---
   const handlePreSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Verificamos si hay cambios sensibles
     const emailChanged = editingStudent.email !== originalEmail;
     const passwordChanged = newPassword.trim().length > 0;
 
-    // Si cambió email o password, mostramos la pantalla de confirmación
     if (emailChanged || passwordChanged) {
       setShowConfirm(true);
     } else {
-      // Si solo cambió el nombre o RUT, guardamos directo
       performUpdate();
     }
   };
 
-  // --- PASO 2: ACTUALIZACIÓN REAL ---
   const performUpdate = async () => {
     if (!editingStudent) return;
     setIsLoading(true);
@@ -71,7 +58,6 @@ export function StudentsTable({ students }: Props) {
 
     if (res?.error) {
         alert(res.error);
-        // Si falla, volvemos a la vista de edición para que corrija
         setShowConfirm(false);
     } else {
         setEditingStudent(null);
@@ -84,30 +70,31 @@ export function StudentsTable({ students }: Props) {
 
   return (
     <>
-      <div className="bg-surface/30 rounded-xl border border-white/10 p-4 overflow-x-auto">
-        {/* ... (LA TABLA SE MANTIENE EXACTAMENTE IGUAL QUE ANTES) ... */}
+      {/* Contenedor Tabla: bg-surface/50 y border-text-main/10 */}
+      <div className="bg-surface/50 rounded-xl border border-text-main/10 p-4 overflow-x-auto shadow-sm">
+        
         <table className="w-full text-left text-sm text-text-muted">
           <thead>
-            <tr className="border-b border-white/10">
-              <th className="pb-2 pl-2">Nombre</th>
-              <th className="pb-2">RUT</th>
-              <th className="pb-2">Acciones</th>
+            <tr className="border-b border-text-main/10">
+              <th className="pb-2 pl-2 text-text-main font-bold">Nombre</th>
+              <th className="pb-2 text-text-main font-bold">RUT</th>
+              <th className="pb-2 text-text-main font-bold">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {students.map((stu) => (
-              <tr key={stu.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group">
-                <td className="py-3 pl-2 text-white font-medium">
+              <tr key={stu.id} className="border-b border-text-main/5 last:border-0 hover:bg-text-main/5 transition-colors group">
+                <td className="py-3 pl-2 text-text-main font-medium">
                     {stu.full_name}
                     <span className="block text-[10px] text-text-muted font-normal">{stu.email}</span>
                 </td>
-                <td className="py-3 font-mono">{stu.rut}</td>
+                <td className="py-3 font-mono text-text-muted">{stu.rut}</td>
                 <td className="py-3">
                   <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openEditModal(stu)} className="p-2 hover:bg-blue-500/20 hover:text-blue-400 rounded transition-colors text-text-muted">
+                    <button onClick={() => openEditModal(stu)} className="p-2 hover:bg-blue-500/10 hover:text-blue-500 rounded transition-colors text-text-muted">
                       <Pencil className="w-4 h-4" />
                     </button>
-                    <button onClick={() => handleDelete(stu.id)} className="p-2 hover:bg-red-500/20 hover:text-red-400 rounded transition-colors text-text-muted">
+                    <button onClick={() => handleDelete(stu.id)} className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded transition-colors text-text-muted">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -122,14 +109,15 @@ export function StudentsTable({ students }: Props) {
       {/* --- MODAL DE EDICIÓN --- */}
       {editingStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-          <div className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl overflow-hidden relative">
+          {/* Modal Box: bg-surface */}
+          <div className="bg-surface border border-text-main/10 rounded-xl p-6 w-full max-w-md shadow-2xl overflow-hidden relative">
             
             {/* Header Modal */}
-            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
-                <h3 className="text-lg font-bold text-white">
+            <div className="flex justify-between items-center mb-4 border-b border-text-main/10 pb-2">
+                <h3 className="text-lg font-bold text-text-main">
                     {showConfirm ? "Confirmar Seguridad" : "Editar Estudiante"}
                 </h3>
-                <button onClick={() => setEditingStudent(null)} className="text-text-muted hover:text-white">
+                <button onClick={() => setEditingStudent(null)} className="text-text-muted hover:text-text-main">
                     <X className="w-5 h-5" />
                 </button>
             </div>
@@ -138,32 +126,33 @@ export function StudentsTable({ students }: Props) {
             {!showConfirm ? (
                 <form onSubmit={handlePreSubmit} className="space-y-4 animate-in slide-in-from-left duration-300">
                     <div>
-                        <label className="text-xs text-text-muted uppercase">Nombre Completo</label>
+                        <label className="text-xs text-text-muted uppercase font-bold">Nombre Completo</label>
                         <input 
                             type="text" required value={editingStudent.full_name}
                             onChange={(e) => setEditingStudent({...editingStudent, full_name: e.target.value})}
-                            className="w-full bg-black/20 border border-white/10 rounded p-2 text-white mt-1 focus:border-primary focus:outline-none"
+                            // Input Adaptable
+                            className="w-full bg-background/50 border border-text-main/10 rounded-lg p-2 text-text-main mt-1 focus:border-primary focus:outline-none"
                         />
                     </div>
                     <div>
-                        <label className="text-xs text-text-muted uppercase">RUT</label>
+                        <label className="text-xs text-text-muted uppercase font-bold">RUT</label>
                         <input 
                             type="text" required value={editingStudent.rut}
                             onChange={(e) => setEditingStudent({...editingStudent, rut: e.target.value})}
-                            className="w-full bg-black/20 border border-white/10 rounded p-2 text-white mt-1 focus:border-primary focus:outline-none"
+                            className="w-full bg-background/50 border border-text-main/10 rounded-lg p-2 text-text-main mt-1 focus:border-primary focus:outline-none"
                         />
                     </div>
                     <div>
-                        <label className="text-xs text-text-muted uppercase flex items-center gap-1">
+                        <label className="text-xs text-text-muted uppercase flex items-center gap-1 font-bold">
                             <Mail className="w-3 h-3"/> Correo Electrónico
                         </label>
                         <input 
                             type="email" required value={editingStudent.email}
                             onChange={(e) => setEditingStudent({...editingStudent, email: e.target.value})}
-                            className="w-full bg-black/20 border border-white/10 rounded p-2 text-white mt-1 focus:border-primary focus:outline-none"
+                            className="w-full bg-background/50 border border-text-main/10 rounded-lg p-2 text-text-main mt-1 focus:border-primary focus:outline-none"
                         />
                     </div>
-                    <div className="pt-2 border-t border-white/5">
+                    <div className="pt-2 border-t border-text-main/5">
                         <label className="text-xs text-secondary uppercase flex items-center gap-1 font-bold">
                             <KeyRound className="w-3 h-3"/> Cambiar Contraseña
                         </label>
@@ -171,14 +160,14 @@ export function StudentsTable({ students }: Props) {
                             type="text" placeholder="Dejar vacío para mantener la actual"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full bg-black/20 border border-white/10 rounded p-2 text-white mt-1 focus:border-secondary focus:outline-none placeholder:text-text-muted/30"
+                            className="w-full bg-background/50 border border-text-main/10 rounded-lg p-2 text-text-main mt-1 focus:border-secondary focus:outline-none placeholder:text-text-muted/50"
                         />
                     </div>
                     <div className="flex gap-2 pt-4">
-                        <button type="button" onClick={() => setEditingStudent(null)} className="flex-1 py-2 text-xs font-bold border border-white/10 rounded hover:bg-white/5 text-text-muted">
+                        <button type="button" onClick={() => setEditingStudent(null)} className="flex-1 py-2 text-xs font-bold border border-text-main/10 rounded hover:bg-text-main/5 text-text-muted transition-colors">
                             Cancelar
                         </button>
-                        <button type="submit" className="flex-1 py-2 text-xs font-bold bg-primary text-background rounded hover:bg-white transition-colors flex items-center justify-center gap-2">
+                        <button type="submit" className="flex-1 py-2 text-xs font-bold bg-primary text-background rounded hover:opacity-90 transition-colors flex items-center justify-center gap-2">
                             Siguiente
                         </button>
                     </div>
@@ -196,17 +185,17 @@ export function StudentsTable({ students }: Props) {
                         </div>
                     </div>
 
-                    <div className="space-y-2 bg-black/20 p-3 rounded border border-white/5 text-sm">
+                    <div className="space-y-2 bg-background/50 p-3 rounded border border-text-main/10 text-sm">
                         {editingStudent.email !== originalEmail && (
                             <div className="flex flex-col">
-                                <span className="text-text-muted text-xs uppercase">Nuevo Correo:</span>
-                                <span className="text-white font-mono">{editingStudent.email}</span>
+                                <span className="text-text-muted text-xs uppercase font-bold">Nuevo Correo:</span>
+                                <span className="text-text-main font-mono">{editingStudent.email}</span>
                             </div>
                         )}
                         {newPassword && (
                             <div className="flex flex-col pt-2">
-                                <span className="text-text-muted text-xs uppercase">Nueva Contraseña:</span>
-                                <span className="text-white font-mono bg-white/5 px-2 py-1 rounded w-fit">{newPassword}</span>
+                                <span className="text-text-muted text-xs uppercase font-bold">Nueva Contraseña:</span>
+                                <span className="text-text-main font-mono bg-text-main/5 px-2 py-1 rounded w-fit">{newPassword}</span>
                             </div>
                         )}
                     </div>
@@ -214,7 +203,7 @@ export function StudentsTable({ students }: Props) {
                     <div className="flex gap-2 pt-2">
                         <button 
                             onClick={() => setShowConfirm(false)}
-                            className="flex-1 py-2 text-xs font-bold border border-white/10 rounded hover:bg-white/5 text-text-muted flex items-center justify-center gap-2"
+                            className="flex-1 py-2 text-xs font-bold border border-text-main/10 rounded hover:bg-text-main/5 text-text-muted flex items-center justify-center gap-2 transition-colors"
                         >
                             <ArrowLeft className="w-3 h-3" /> Volver
                         </button>
