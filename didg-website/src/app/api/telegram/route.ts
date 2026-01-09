@@ -1,17 +1,14 @@
-// src/app/api/telegram/route.ts
-import { createAdminClient } from "@/infrastructure/supabase/admin"; // <--- USAR ADMIN
+import { createAdminClient } from "@/infrastructure/supabase/admin"; 
 import { sendTelegramMessage } from "@/core/lib/telegram";
 import { NextResponse } from "next/server";
 
-// 1. Agregar método GET para verificar en el navegador
 export async function GET() {
   return NextResponse.json({ 
     status: "ok", 
-    message: "El webhook de Telegram está activo y escuchando peticiones POST." 
+    message: "El webhook de Telegram está activo." 
   });
 }
 
-// 2. Método POST (El que usa Telegram)
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -19,18 +16,22 @@ export async function POST(req: Request) {
     // Verificamos si es un mensaje de texto
     if (body.message && body.message.text) {
       const text = body.message.text;
-      // const chatId = body.message.chat.id; // Podríamos usarlo para responderle a ese usuario específico
+      
+      // 1. DESCOMENTAMOS ESTO: Es vital para saber a quién responder
+      const chatId = body.message.chat.id; 
 
-      console.log("📩 Comando recibido:", text); // Log para ver en consola
+      console.log(`📩 Comando: ${text} | ChatID: ${chatId}`);
 
       // COMANDO: /stats
       if (text === "/stats") {
-        await handleStatsCommand();
+        // Pasamos el chatId
+        await handleStatsCommand(chatId);
       }
       
       // COMANDO: /ping
       if (text === "/ping") {
-         await sendTelegramMessage("🏓 <b>PONG!</b> El sistema está operativo.");
+         // Pasamos el chatId
+         await sendTelegramMessage("🏓 <b>PONG!</b> El sistema está operativo.", chatId);
       }
     }
 
@@ -42,26 +43,24 @@ export async function POST(req: Request) {
 }
 
 // Lógica para el comando /stats
-async function handleStatsCommand() {
-  // USAMOS ADMIN CLIENT PARA SALTARNOS EL RLS (Ya que el bot no tiene cookies de sesión)
+// Aceptamos chatId como argumento
+async function handleStatsCommand(chatId: number | string) {
   const supabase = createAdminClient();
 
-  // Contar Alumnos
   const { count: students } = await supabase
     .from("profiles")
     .select("*", { count: "exact", head: true })
     .eq("role", "student");
 
-  // Contar Proyectos
   const { count: projects } = await supabase
     .from("projects")
     .select("*", { count: "exact", head: true });
 
-  // Responder
   const report = `📊 <b>REPORTE DE ESTADO</b>\n\n` +
                  `👨‍🎓 <b>Alumnos:</b> ${students || 0}\n` +
                  `🚀 <b>Proyectos:</b> ${projects || 0}\n\n` +
                  `🟢 <i>Base de datos operativa.</i>`;
 
-  await sendTelegramMessage(report);
+  // Respondemos al ID específico
+  await sendTelegramMessage(report, chatId);
 }
