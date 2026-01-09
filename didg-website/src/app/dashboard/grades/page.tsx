@@ -42,24 +42,21 @@ export default async function GradesDashboardPage({
         
         if (grades && grades.length > 0) {
             // PASO C: Buscar Perfiles
-            // CORRECCIÓN CRÍTICA: Solo pedimos columnas que SÍ existen (quitamos 'email')
             const studentIds = enrollments?.map(e => e.student_id).filter(Boolean) || [];
             
             const { data: profiles } = await supabase
                 .from("profiles")
-                .select("id, rut, full_name") // <--- Solo lo que existe en tu tabla
+                .select("id, rut, full_name")
                 .in("id", studentIds);
 
             // PASO D: Unir datos
             recentGrades = grades.map(grade => {
                 const enrollment = enrollments?.find(e => e.id === grade.enrollment_id);
-                // Aseguramos que los IDs sean strings para comparar bien
                 const profile = profiles?.find(p => String(p.id) === String(enrollment?.student_id));
 
                 return {
                     ...grade,
                     student_rut: profile?.rut || "RUT No encontrado",
-                    // Mostramos el nombre en lugar del email, ya que el email no está en la tabla
                     student_name: profile?.full_name || "Nombre desconocido"
                 };
             });
@@ -74,11 +71,12 @@ export default async function GradesDashboardPage({
       
       {/* HEADER */}
       <div className="flex items-center gap-4">
-        <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 border border-emerald-500/20">
+        {/* Icono adaptable: emerald-500 */}
+        <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 border border-emerald-500/20">
           <FileSpreadsheet className="w-8 h-8" />
         </div>
         <div>
-          <h1 className="text-3xl font-display font-bold text-white">Centro de Calificaciones</h1>
+          <h1 className="text-3xl font-display font-bold text-text-main">Centro de Calificaciones</h1>
           <p className="text-text-muted font-mono text-sm">Gestiona y publica las notas de tus alumnos.</p>
         </div>
       </div>
@@ -87,26 +85,29 @@ export default async function GradesDashboardPage({
         
         {/* IZQUIERDA: FORMULARIO */}
         <div>
-           <div className="bg-surface/50 border border-white/10 rounded-xl overflow-hidden">
-             <div className="p-4 border-b border-white/10 bg-white/5">
-                <h3 className="font-bold text-white text-sm uppercase tracking-wider">Nueva Carga</h3>
+           {/* Card Container: bg-surface/50 */}
+           <div className="bg-surface/50 border border-text-main/10 rounded-xl overflow-hidden shadow-sm">
+             <div className="p-4 border-b border-text-main/10 bg-surface">
+                <h3 className="font-bold text-text-main text-sm uppercase tracking-wider">Nueva Carga</h3>
              </div>
              <div className="p-4">
+                {/* El formulario interno también necesitará adaptación (probablemente selects e inputs) */}
                 <UploadGradesForm subjects={subjects || []} defaultSubjectId={subject_id} />
              </div>
            </div>
         </div>
 
-        {/* DERECHA: TABLA */}
+        {/* DERECHA: TABLA HISTORIAL */}
         <div>
           {subject_id ? (
-            <div className="bg-surface/30 border border-white/10 rounded-xl overflow-hidden flex flex-col h-full max-h-[600px]">
-              <div className="p-4 border-b border-white/10 bg-white/5 flex justify-between items-center">
-                <h3 className="font-bold text-white flex items-center gap-2">
+            <div className="bg-surface/50 border border-text-main/10 rounded-xl overflow-hidden flex flex-col h-full max-h-[600px] shadow-sm">
+              <div className="p-4 border-b border-text-main/10 bg-surface flex justify-between items-center">
+                <h3 className="font-bold text-text-main flex items-center gap-2">
                   <History className="w-4 h-4 text-secondary" />
                   Historial: <span className="text-secondary">{selectedSubjectName}</span>
                 </h3>
-                <span className="text-xs text-text-muted font-mono bg-black/20 px-2 py-1 rounded">
+                {/* Badge contador */}
+                <span className="text-xs text-text-muted font-mono bg-background/50 border border-text-main/10 px-2 py-1 rounded">
                   {recentGrades.length} registros
                 </span>
               </div>
@@ -116,8 +117,9 @@ export default async function GradesDashboardPage({
                   <div className="p-10 flex flex-col items-center justify-center text-text-muted text-sm gap-2">
                     {warningMessage ? (
                          <>
-                            <AlertTriangle className="w-8 h-8 text-yellow-500/50" />
-                            <p className="text-yellow-200/80">{warningMessage}</p>
+                            <AlertTriangle className="w-8 h-8 text-yellow-500" />
+                            {/* Texto amarillo legible */}
+                            <p className="text-yellow-600 dark:text-yellow-500 font-medium">{warningMessage}</p>
                          </>
                     ) : (
                          <>
@@ -128,25 +130,25 @@ export default async function GradesDashboardPage({
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse">
+                    {/* Thead Sticky: bg-surface */}
                     <thead className="sticky top-0 bg-surface/95 backdrop-blur text-xs font-mono text-text-muted uppercase z-10">
                       <tr>
-                        <th className="p-3 border-b border-white/10">Alumno</th>
-                        <th className="p-3 border-b border-white/10">Evaluación</th>
-                        <th className="p-3 border-b border-white/10 text-right">Nota</th>
+                        <th className="p-3 border-b border-text-main/10">Alumno</th>
+                        <th className="p-3 border-b border-text-main/10">Evaluación</th>
+                        <th className="p-3 border-b border-text-main/10 text-right">Nota</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5 text-sm">
+                    <tbody className="divide-y divide-text-main/5 text-sm">
                       {recentGrades.map((grade) => (
-                        <tr key={grade.id} className="hover:bg-white/5 transition-colors group">
+                        <tr key={grade.id} className="hover:bg-text-main/5 transition-colors group">
                           <td className="p-3">
                             <div className="flex items-center gap-2">
                               <User className="w-3 h-3 text-text-muted group-hover:text-primary transition-colors" />
-                              <span className={`font-mono text-xs ${grade.student_rut.includes("No encontrado") ? 'text-red-400' : 'text-white'}`}>
+                              <span className={`font-mono text-xs ${grade.student_rut.includes("No encontrado") ? 'text-red-500' : 'text-text-main'}`}>
                                 {grade.student_rut}
                               </span>
                             </div>
                             <div className="text-[10px] text-text-muted ml-5 truncate max-w-[150px]">
-                               {/* Ahora mostramos el nombre completo */}
                                {grade.student_name}
                             </div>
                           </td>
@@ -154,7 +156,8 @@ export default async function GradesDashboardPage({
                             {grade.name}
                           </td>
                           <td className="p-3 text-right">
-                            <span className={`font-bold font-mono px-2 py-1 rounded ${grade.score >= 4.0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                            {/* Badges de notas: colores -500 */}
+                            <span className={`font-bold font-mono px-2 py-1 rounded ${grade.score >= 4.0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
                               {grade.score}
                             </span>
                           </td>
@@ -166,11 +169,12 @@ export default async function GradesDashboardPage({
               </div>
             </div>
           ) : (
-            <div className="bg-surface/30 border border-dashed border-white/10 p-8 rounded-xl text-center flex flex-col items-center justify-center gap-4 h-full min-h-[300px]">
-              <div className="p-4 bg-white/5 rounded-full">
+            // Estado vacío (Sin asignatura seleccionada)
+            <div className="bg-surface/30 border border-dashed border-text-main/10 p-8 rounded-xl text-center flex flex-col items-center justify-center gap-4 h-full min-h-[300px]">
+              <div className="p-4 bg-background/50 rounded-full border border-text-main/5">
                 <FileSpreadsheet className="w-8 h-8 text-text-muted" />
               </div>
-              <h3 className="text-lg font-bold text-white">Selecciona una Asignatura</h3>
+              <h3 className="text-lg font-bold text-text-main">Selecciona una Asignatura</h3>
             </div>
           )}
         </div>
