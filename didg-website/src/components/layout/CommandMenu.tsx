@@ -17,7 +17,8 @@ import {
   Sun,
   Laptop,
   Command as CommandIcon, // <--- Importamos el icono con alias
-  Search
+  Search,
+  Book
 } from "lucide-react";
 
 export function CommandMenu() {
@@ -93,6 +94,9 @@ export function CommandMenu() {
                         </Item>
                         <Item onSelect={() => runCommand(() => router.push("/courses"))}>
                             <GraduationCap className="mr-2 h-4 w-4" /> Ayudantías
+                        </Item>
+                        <Item onSelect={() => runCommand(() => router.push("/resources"))}>
+                            <Book className="mr-2 h-4 w-4" /> Recursos
                         </Item>
                         <Item onSelect={() => runCommand(() => router.push("/about"))}>
                             <User className="mr-2 h-4 w-4" /> Sobre mí
