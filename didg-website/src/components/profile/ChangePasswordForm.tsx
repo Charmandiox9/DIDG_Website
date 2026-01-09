@@ -1,112 +1,115 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Lock, Loader2, Save, AlertCircle, CheckCircle2, KeyRound } from "lucide-react";
-import { changePassword } from "@/core/actions/auth";
-
-// 1. Esquema actualizado: Agregamos currentPassword
-const passwordSchema = z.object({
-  currentPassword: z.string().min(1, "Debes ingresar tu contraseña actual"), // <--- NUEVO
-  password: z.string().min(6, "La nueva contraseña debe tener al menos 6 caracteres"),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Las contraseñas nuevas no coinciden",
-  path: ["confirmPassword"],
-});
-
-type PasswordFormValues = z.infer<typeof passwordSchema>;
+import { Lock, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { createClient } from "@/infrastructure/supabase/client";
+import { useRouter } from "next/navigation";
 
 export function ChangePasswordForm() {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<PasswordFormValues>({
-    resolver: zodResolver(passwordSchema)
-  });
-
-  const onSubmit = async (data: PasswordFormValues) => {
-    setLoading(true);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
     setMessage(null);
 
-    // 2. Enviamos AMBAS contraseñas a la acción
-    const res = await changePassword(data.currentPassword, data.password);
+    const formData = new FormData(e.currentTarget);
+    const newPassword = formData.get("newPassword") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
 
-    if (res?.error) {
-      setMessage({ type: 'error', text: res.error });
-    } else {
-      setMessage({ type: 'success', text: "Contraseña actualizada correctamente." });
-      reset(); 
+    if (newPassword !== confirmPassword) {
+      setMessage({ type: 'error', text: "Las contraseñas no coinciden" });
+      setIsLoading(false);
+      return;
     }
-    setLoading(false);
+
+    if (newPassword.length < 6) {
+      setMessage({ type: 'error', text: "La contraseña debe tener al menos 6 caracteres" });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      setMessage({ type: 'success', text: "Contraseña actualizada correctamente" });
+      e.currentTarget.reset();
+      router.refresh();
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || "Error al actualizar la contraseña" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="bg-surface/30 border border-white/10 rounded-xl p-6">
-      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <Lock className="w-5 h-5 text-primary" />
-        Cambiar Contraseña
+    // Card Container: bg-surface/50 para adaptarse a Light/Dark
+    <div className="bg-surface/50 backdrop-blur-sm border border-text-main/10 rounded-xl p-6 space-y-6 shadow-sm h-full">
+      <h3 className="text-lg font-bold text-text-main flex items-center gap-2 border-b border-text-main/10 pb-2">
+        <Lock className="w-5 h-5 text-primary" /> Cambiar Contraseña
       </h3>
-      
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         
-        {/* --- CAMPO NUEVO: Contraseña Actual --- */}
         <div className="space-y-2">
-          <label className="text-xs font-mono text-text-muted uppercase flex items-center gap-1">
-             <KeyRound className="w-3 h-3"/> Contraseña Actual
+          <label className="text-xs font-mono text-primary uppercase tracking-wider font-bold">
+            Nueva Contraseña
           </label>
-          <input
-            {...register("currentPassword")}
-            type="password"
-            className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:border-secondary focus:outline-none transition-colors"
-            placeholder="Ingresa tu clave actual"
+          <input 
+            name="newPassword" 
+            type="password" 
+            required
+            placeholder="••••••••"
+            // Input adaptable: fondo transparente tintado, texto adaptable
+            className="w-full bg-background/50 border border-text-main/10 rounded-lg p-3 text-text-main placeholder:text-text-muted/50 focus:border-primary/50 focus:bg-background outline-none transition-all"
           />
-          {errors.currentPassword && <p className="text-xs text-error">{errors.currentPassword.message}</p>}
         </div>
 
-        <hr className="border-white/5 my-2" />
-
-        {/* Nueva Contraseña */}
         <div className="space-y-2">
-          <label className="text-xs font-mono text-text-muted uppercase">Nueva Contraseña</label>
-          <input
-            {...register("password")}
-            type="password"
-            className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:border-primary focus:outline-none transition-colors"
-            placeholder="Mínimo 6 caracteres"
+          <label className="text-xs font-mono text-primary uppercase tracking-wider font-bold">
+            Confirmar Contraseña
+          </label>
+          <input 
+            name="confirmPassword" 
+            type="password" 
+            required
+            placeholder="••••••••"
+            className="w-full bg-background/50 border border-text-main/10 rounded-lg p-3 text-text-main placeholder:text-text-muted/50 focus:border-primary/50 focus:bg-background outline-none transition-all"
           />
-          {errors.password && <p className="text-xs text-error">{errors.password.message}</p>}
         </div>
 
-        {/* Confirmar Contraseña */}
-        <div className="space-y-2">
-          <label className="text-xs font-mono text-text-muted uppercase">Confirmar Nueva Contraseña</label>
-          <input
-            {...register("confirmPassword")}
-            type="password"
-            className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:border-primary focus:outline-none transition-colors"
-            placeholder="Repite la nueva contraseña"
-          />
-          {errors.confirmPassword && <p className="text-xs text-error">{errors.confirmPassword.message}</p>}
-        </div>
-
-        {/* Feedback */}
+        {/* Mensajes de Feedback */}
         {message && (
-          <div className={`p-3 rounded-lg text-sm flex items-center gap-2 animate-in fade-in ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-            {message.type === 'success' ? <CheckCircle2 className="w-4 h-4"/> : <AlertCircle className="w-4 h-4"/>}
+          <div className={`p-3 rounded-lg text-xs font-mono flex items-center gap-2 ${
+            message.type === 'success' 
+              ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' 
+              : 'bg-red-500/10 text-red-500 border border-red-500/20'
+          }`}>
+            {message.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
             {message.text}
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-white/5 hover:bg-white/10 text-white font-medium py-2 rounded-lg border border-white/10 transition-all flex items-center justify-center gap-2"
+        <button 
+          type="submit" 
+          disabled={isLoading}
+          // Botón principal: Primary con texto background para contraste
+          className="w-full bg-primary text-background font-bold py-3 rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-[0_0_15px_var(--primary-glow)]"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Actualizar Clave</>}
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            "Actualizar Clave"
+          )}
         </button>
+
       </form>
     </div>
   );
