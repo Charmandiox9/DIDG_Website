@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Play, Terminal, Loader2, Copy, Check } from "lucide-react";
-import { cn } from "@/core/utils/cn"; // Asegúrate de tener esta utilidad o usa template strings
+import { Play, Terminal, Loader2, Copy, Check, RotateCcw, Eraser } from "lucide-react";
+import { cn } from "@/core/utils/cn";
 
-// Configuración de lenguajes soportados por Piston API
+// Configuración de lenguajes (Igual que antes)
 const LANGUAGES = [
   { 
     id: "python", 
@@ -50,11 +50,12 @@ export function CodeTerminal() {
   const [isRunning, setIsRunning] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
-  // Función para ejecutar el código usando Piston API
+  // Función para ejecutar código
   const runCode = async () => {
     setIsRunning(true);
-    setOutput("");
-
+    // No borramos el output anterior inmediatamente para dar sensación de continuidad, 
+    // o puedes usar setOutput("") si prefieres limpiar antes.
+    
     try {
       const response = await fetch("https://emkc.org/api/v2/piston/execute", {
         method: "POST",
@@ -68,7 +69,6 @@ export function CodeTerminal() {
 
       const data = await response.json();
       
-      // Piston devuelve { run: { stdout: "...", stderr: "..." } }
       if (data.run) {
         setOutput(data.run.stdout || data.run.stderr || "Sin salida (Exit Code 0)");
       } else {
@@ -87,13 +87,32 @@ export function CodeTerminal() {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  // NUEVO: Resetear al snippet original
+  const handleReset = () => {
+    if (confirm("¿Restaurar el código por defecto? Se perderán tus cambios.")) {
+        setCode(activeLang.snippet);
+        setOutput("");
+    }
+  };
+
+  // NUEVO: Limpiar consola
+  const handleClear = () => {
+    setOutput("");
+  };
+
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-[#0d0d0d] text-gray-300 font-mono text-sm group hover:border-primary/30 transition-all duration-300">
+    // CAMBIO: bg-surface y border-text-main/10 para adaptarse al tema
+    <div className="w-full max-w-5xl mx-auto rounded-xl overflow-hidden border border-text-main/10 shadow-2xl bg-surface text-text-main font-mono text-sm group hover:border-primary/30 transition-all duration-300 flex flex-col">
       
-      {/* --- HEADER: PESTAÑAS Y CONTROLES --- */}
-      <div className="flex items-center justify-between bg-[#1e1e1e] px-4 py-2 border-b border-white/5">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <Terminal className="w-4 h-4 text-primary mr-2" />
+      {/* --- HEADER --- */}
+      {/* CAMBIO: bg-background/50 para contraste sutil */}
+      <div className="flex flex-col sm:flex-row items-center justify-between bg-background/50 px-4 py-2 border-b border-text-main/10 gap-4">
+        
+        {/* Lenguajes */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-2 sm:pb-0">
+          <div className="p-1.5 bg-primary/10 rounded text-primary mr-2">
+             <Terminal className="w-4 h-4" />
+          </div>
           {LANGUAGES.map((lang) => (
             <button
               key={lang.id}
@@ -103,10 +122,10 @@ export function CodeTerminal() {
                 setOutput("");
               }}
               className={cn(
-                "px-3 py-1.5 rounded text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap",
+                "px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-2 whitespace-nowrap border",
                 activeLang.id === lang.id
-                  ? "bg-primary/20 text-primary font-bold"
-                  : "hover:bg-white/5 text-text-muted"
+                  ? "bg-surface border-primary/30 text-primary font-bold shadow-sm"
+                  : "border-transparent hover:bg-text-main/5 text-text-muted"
               )}
             >
               <span>{lang.icon}</span>
@@ -115,64 +134,91 @@ export function CodeTerminal() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 pl-4">
+        {/* Herramientas (Copiar, Reset) */}
+        <div className="flex items-center gap-1 pl-4 border-l border-text-main/10 ml-auto">
+           <button 
+             onClick={handleReset} 
+             className="p-2 hover:bg-text-main/5 rounded transition-colors text-text-muted hover:text-text-main"
+             title="Restaurar código"
+           >
+             <RotateCcw className="w-4 h-4" />
+           </button>
            <button 
              onClick={handleCopy} 
-             className="p-1.5 hover:bg-white/10 rounded transition-colors text-text-muted hover:text-white"
-             title="Copiar Código"
+             className="p-2 hover:bg-text-main/5 rounded transition-colors text-text-muted hover:text-text-main"
+             title="Copiar código"
            >
-             {isCopied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+             {isCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
            </button>
         </div>
       </div>
 
-      {/* --- BODY: EDITOR + OUTPUT --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 min-h-[300px]">
+      {/* --- BODY --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[400px]">
         
-        {/* EDITOR DE CÓDIGO (Izquierda) */}
-        <div className="relative border-r border-white/5 bg-[#1e1e1e]/50">
+        {/* EDITOR (Izquierda) */}
+        {/* CAMBIO: bg-surface para que se vea limpio en Light Mode */}
+        <div className="relative border-b lg:border-b-0 lg:border-r border-text-main/10 bg-surface flex flex-col">
+          <div className="absolute top-0 left-0 w-4 h-full bg-text-main/5 border-r border-text-main/5 z-0 pointer-events-none" /> {/* Decoración gutter */}
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="w-full h-full bg-transparent p-4 outline-none resize-none text-blue-100 placeholder-white/20 font-mono leading-relaxed"
+            className="w-full h-full bg-transparent p-4 pl-8 outline-none resize-none text-text-main placeholder:text-text-muted font-mono leading-relaxed z-10"
             spellCheck={false}
+            placeholder="// Escribe tu código aquí..."
           />
-          <div className="absolute bottom-4 right-4">
+          
+          {/* Botón Ejecutar Flotante */}
+          <div className="absolute bottom-4 right-4 z-20">
             <button
               onClick={runCode}
               disabled={isRunning}
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-black font-bold px-4 py-2 rounded-full shadow-lg shadow-primary/20 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-background font-bold px-6 py-2.5 rounded-full shadow-[0_0_20px_var(--primary-glow)] transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
-              EJECUTAR
+              RUN
             </button>
           </div>
         </div>
 
-        {/* CONSOLA DE SALIDA (Derecha) */}
-        <div className="bg-[#0a0a0a] p-4 flex flex-col font-mono relative">
-          <span className="text-xs uppercase text-text-muted mb-2 select-none">Terminal Output</span>
+        {/* CONSOLA (Derecha) */}
+        {/* DECISIÓN DE DISEÑO: La consola siempre se ve mejor oscura (tipo Hacker) incluso en Light Mode. 
+            Usamos bg-[#0F0F0F] fijo para mantener esa estética, pero con bordes adaptables. */}
+        <div className="bg-[#121212] p-4 flex flex-col font-mono relative min-h-[200px] border-t lg:border-t-0 border-white/10">
           
-          <div className="flex-1 font-mono text-sm whitespace-pre-wrap overflow-y-auto max-h-[250px] custom-scrollbar">
+          <div className="flex justify-between items-center mb-2">
+             <span className="text-xs uppercase text-gray-500 font-bold select-none tracking-wider">Terminal Output</span>
+             <button onClick={handleClear} className="text-gray-600 hover:text-gray-400 transition-colors" title="Limpiar consola">
+                <Eraser className="w-3 h-3" />
+             </button>
+          </div>
+          
+          <div className="flex-1 font-mono text-sm whitespace-pre-wrap overflow-y-auto max-h-[350px] custom-scrollbar">
             {isRunning ? (
-                <div className="text-yellow-400 animate-pulse">{"> Compilando..."}</div>
+                <div className="flex items-center gap-2 text-yellow-500 animate-pulse">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Compilando...
+                </div>
             ) : output ? (
-                <div className={output.includes("Error") ? "text-red-400" : "text-emerald-400"}>
-                    <span className="opacity-50 select-none">{"> "}</span>
+                <div className={cn(
+                    "leading-relaxed", 
+                    output.includes("Error") ? "text-red-400" : "text-emerald-400"
+                )}>
+                    <span className="opacity-50 select-none mr-2">$</span>
                     {output}
                 </div>
             ) : (
-                <div className="text-white/20 italic">
-                    {"> Esperando ejecución..."}
+                <div className="text-gray-700 italic text-xs mt-10 text-center">
+                    {"> Presiona RUN para ver el resultado aquí..."}
                 </div>
             )}
           </div>
           
-          {/* Decoración Cyber */}
-          <div className="absolute top-2 right-2 flex gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-red-500/20" />
-              <div className="w-2 h-2 rounded-full bg-yellow-500/20" />
-              <div className="w-2 h-2 rounded-full bg-emerald-500/20" />
+          {/* Decoración UI */}
+          <div className="absolute top-4 right-4 flex gap-1.5 opacity-30">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <div className="w-2 h-2 rounded-full bg-yellow-500" />
+              <div className="w-2 h-2 rounded-full bg-emerald-500" />
           </div>
         </div>
       </div>

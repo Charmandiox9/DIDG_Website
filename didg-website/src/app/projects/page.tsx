@@ -2,6 +2,7 @@ import { createClient } from "@/infrastructure/supabase/server";
 import { ProjectsInteractiveGrid } from "@/components/projects/ProjectsInteractiveGrid";
 import { Terminal, FolderOpen } from "lucide-react"; // Agregué FolderOpen para el estado vacío
 import type { Metadata } from "next";
+import { CharmanderPet } from "@/components/home/CharmanderPet";
 
 export const revalidate = 3600;
 
@@ -34,6 +35,7 @@ export default async function PublicProjectsPage() {
 
   return (
     <div className="min-h-screen py-20 px-4 md:px-8 max-w-7xl mx-auto">
+      <CharmanderPet />
       
       {/* Header Sección */}
       <div className="mb-16 text-center space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">

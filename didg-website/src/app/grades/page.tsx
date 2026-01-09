@@ -1,6 +1,7 @@
 import { createClient } from "@/infrastructure/supabase/server";
 import { redirect } from "next/navigation";
 import { GraduationCap, BookOpen } from "lucide-react";
+import { CharmanderPet } from "@/components/home/CharmanderPet";
 
 export default async function StudentGradesPage() {
   const supabase = await createClient();
@@ -27,6 +28,7 @@ export default async function StudentGradesPage() {
 
   return (
     <div className="min-h-screen py-20 px-4 max-w-5xl mx-auto animate-in fade-in">
+      <CharmanderPet />
       
       <div className="flex items-center gap-4 mb-10">
         <div className="p-3 bg-secondary/10 rounded-full text-secondary shadow-sm">

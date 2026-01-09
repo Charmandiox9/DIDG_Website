@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 
 const AFK_TIME = 120000; 
 const ATTACK_DURATION = 1600; 
+const BASE_BOTTOM = 16; // 16px equivale a bottom-4 de Tailwind
 
 const SPRITES = {
   idle: "/assets/idle.gif",
@@ -13,43 +14,73 @@ const SPRITES = {
 
 export function CharmanderPet() {
   const [status, setStatus] = useState<"idle" | "sleeping" | "attacking">("idle");
+  // 1. NUEVO ESTADO: Para controlar la posición vertical dinámica
+  const [bottomOffset, setBottomOffset] = useState(BASE_BOTTOM);
   
-  // 1. TRUCO: Usamos un Ref para rastrear el estado en tiempo real
-  // Esto permite que los event listeners sepan el estado exacto sin depender de re-renders
   const statusRef = useRef(status);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 2. Sincronizamos el Ref cada vez que el estado visual cambia
+  // Sincronizar Ref
   useEffect(() => {
     statusRef.current = status;
   }, [status]);
 
+  // --- NUEVA LÓGICA: DETECCIÓN DEL FOOTER ---
+  useEffect(() => {
+    const handleScrollPosition = () => {
+      // Buscamos la etiqueta <footer> (o puedes usar un ID si prefieres)
+      const footer = document.querySelector('footer');
+      
+      if (footer) {
+        const footerRect = footer.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // Si la parte superior del footer está visible en la ventana
+        if (footerRect.top < windowHeight) {
+          // Calculamos cuánto del footer se ve
+          const overlap = windowHeight - footerRect.top;
+          // Ajustamos la posición: Base + lo que el footer ha subido
+          setBottomOffset(BASE_BOTTOM + overlap);
+        } else {
+          // Si no se ve el footer, volvemos a la posición base
+          setBottomOffset(BASE_BOTTOM);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScrollPosition);
+    window.addEventListener("resize", handleScrollPosition); // Por si cambian el tamaño de ventana
+
+    // Chequeo inicial
+    handleScrollPosition();
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollPosition);
+      window.removeEventListener("resize", handleScrollPosition);
+    };
+  }, []);
+
+  // --- LÓGICA EXISTENTE DE AFK ---
   useEffect(() => {
     const handleActivity = () => {
-      // LEEMOS EL REF, NO EL STATE
-      // Si está durmiendo, lo despertamos inmediatamente
       if (statusRef.current === "sleeping") {
         setStatus("idle");
       }
 
-      // Reiniciamos el timer
       if (timerRef.current) clearTimeout(timerRef.current);
       
       timerRef.current = setTimeout(() => {
-        // Al momento de cumplirse el tiempo, verificamos el Ref
         if (statusRef.current !== "attacking") {
           setStatus("sleeping");
         }
       }, AFK_TIME);
     };
 
-    // Eventos globales
     window.addEventListener("mousemove", handleActivity);
     window.addEventListener("keydown", handleActivity);
     window.addEventListener("click", handleActivity);
     window.addEventListener("scroll", handleActivity);
 
-    // Timer inicial
     handleActivity();
 
     return () => {
@@ -59,23 +90,18 @@ export function CharmanderPet() {
       window.removeEventListener("click", handleActivity);
       window.removeEventListener("scroll", handleActivity);
     };
-  }, []); // Array vacío: Los listeners se crean UNA sola vez y usan el statusRef
+  }, []);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation(); 
-    
-    // Usamos el ref para validación inmediata
     if (statusRef.current === "attacking") return;
 
     setStatus("attacking");
 
-    // Lógica post-ataque
     setTimeout(() => {
       setStatus("idle");
-      // Reiniciamos timer post-ataque
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
-          // Verificación segura con Ref
           if (statusRef.current !== "attacking") {
              setStatus("sleeping");
           }
@@ -85,7 +111,10 @@ export function CharmanderPet() {
 
   return (
     <div 
-      className="fixed bottom-4 left-4 z-50 cursor-pointer transition-transform hover:scale-110 active:scale-95"
+      className="fixed left-4 z-50 cursor-pointer transition-transform hover:scale-110 active:scale-95"
+      // CAMBIO: Usamos style para controlar el bottom dinámicamente
+      // Quitamos 'bottom-4' de className y lo pasamos aquí
+      style={{ bottom: `${bottomOffset}px`, transitionProperty: 'transform, bottom', transitionDuration: '100ms' }}
       onClick={handleClick}
       title={status === 'sleeping' ? '¡Despierta!' : 'Click para atacar'}
     >

@@ -61,6 +61,7 @@ export async function AuthButtons() {
 
       {/* BOTÓN ESTUDIANTE: Mis Notas */}
       {/* Mantiene secondary, funciona bien en ambos temas */}
+      {/*
       {(p?.role === "student" || p?.role === "admin") && (
         <Link 
           href="/grades" 
@@ -69,7 +70,7 @@ export async function AuthButtons() {
           <GraduationCap className="w-4 h-4" />
           <span className="hidden md:inline">Notas</span>
         </Link>
-      )}
+      )}*/}
 
       {/* BOTÓN LOGOUT */}
       <form action={signOutAction}>

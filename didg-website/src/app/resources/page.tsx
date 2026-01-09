@@ -1,5 +1,6 @@
 import { getExtraResources } from "@/core/actions/resources";
 import { ResourceFeed } from "@/components/resources/ResourceFeed"; // <--- Importamos el componente cliente
+import { CharmanderPet } from "@/components/home/CharmanderPet";
 import { Sparkles } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,7 @@ export default async function ResourcesPage() {
 
   return (
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-6xl mx-auto animate-in fade-in duration-500">
+      <CharmanderPet />
       
       {/* HEADER HERO (Se mantiene en el servidor para SEO y carga rápida visual) */}
       <div className="mb-12 text-center space-y-4">

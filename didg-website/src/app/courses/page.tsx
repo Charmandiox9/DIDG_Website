@@ -2,6 +2,7 @@ import { createClient } from "@/infrastructure/supabase/server";
 import Link from "next/link";
 import { BookOpen, Calendar, ArrowRight, Library, GraduationCap } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { CharmanderPet } from "@/components/home/CharmanderPet";
 import type { Metadata } from "next";
 
 // 1. CONFIGURACIÓN ISR
@@ -47,6 +48,7 @@ export default async function PublicCoursesPage() {
 
   return (
     <div className="min-h-screen py-20 px-4 md:px-8 max-w-7xl mx-auto space-y-12">
+      <CharmanderPet />
       
       {/* Hero Header */}
       <div className="text-center space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">

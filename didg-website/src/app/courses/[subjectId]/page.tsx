@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { AyudantiaList } from "@/components/courses/AyudantiaList";
+import { CharmanderPet } from "@/components/home/CharmanderPet";
 
 export default async function PublicSubjectPage({ params }: { params: Promise<{ subjectId: string }> }) {
   const supabase = await createClient();
@@ -40,6 +41,7 @@ export default async function PublicSubjectPage({ params }: { params: Promise<{ 
 
   return (
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto animate-in fade-in duration-500">
+      <CharmanderPet />
 
       {/* Breadcrumbs */}
       <Breadcrumbs 
