@@ -13,6 +13,7 @@ export function Navbar({ children }: { children?: React.ReactNode }) {
   const navItems = [
     { name: "Proyectos", href: "/projects", icon: Cpu },
     { name: "Ayudantías", href: "/courses", icon: BookOpen },
+    { name: "Recursos", href: "/resources", icon: BookOpen },
     { name: "Sobre Mí", href: "/about", icon: User },
   ];
 

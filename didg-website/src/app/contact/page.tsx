@@ -4,6 +4,7 @@ import { sendMessage } from "@/core/actions/contact";
 import { Github, MapPin, Send, Loader2, CheckCircle2, Terminal } from "lucide-react";
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { CharmanderPet } from "@/components/home/CharmanderPet";
 
 export default function ContactPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +27,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen py-20 px-4 max-w-5xl mx-auto flex items-center justify-center animate-in fade-in duration-700">
+      <CharmanderPet />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">
         
         {/* Columna Izquierda */}

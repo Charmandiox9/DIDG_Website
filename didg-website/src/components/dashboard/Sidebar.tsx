@@ -21,6 +21,7 @@ const menuItems = [
   { name: "Estudiantes", href: "/dashboard/students", icon: Users },
   { name: "Proyectos", href: "/dashboard/projects", icon: FolderKanban },
   { name: "Ayudantías", href: "/dashboard/courses", icon: GraduationCap },
+  { name: "Recursos", href: "/dashboard/resources", icon: FolderKanban },
   { name: "Configuración", href: "/dashboard/settings", icon: Settings },
 ];
 
