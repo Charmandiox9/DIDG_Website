@@ -1,33 +1,50 @@
 // src/app/api/telegram/route.ts
-import { createClient } from "@/infrastructure/supabase/server";
+import { createAdminClient } from "@/infrastructure/supabase/admin"; // <--- USAR ADMIN
 import { sendTelegramMessage } from "@/core/lib/telegram";
 import { NextResponse } from "next/server";
 
+// 1. Agregar método GET para verificar en el navegador
+export async function GET() {
+  return NextResponse.json({ 
+    status: "ok", 
+    message: "El webhook de Telegram está activo y escuchando peticiones POST." 
+  });
+}
+
+// 2. Método POST (El que usa Telegram)
 export async function POST(req: Request) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  // Verificamos si es un mensaje de texto
-  if (body.message && body.message.text) {
-    const text = body.message.text;
-    const chatId = body.message.chat.id;
+    // Verificamos si es un mensaje de texto
+    if (body.message && body.message.text) {
+      const text = body.message.text;
+      // const chatId = body.message.chat.id; // Podríamos usarlo para responderle a ese usuario específico
 
-    // COMANDO: /stats
-    if (text === "/stats") {
-      await handleStatsCommand();
+      console.log("📩 Comando recibido:", text); // Log para ver en consola
+
+      // COMANDO: /stats
+      if (text === "/stats") {
+        await handleStatsCommand();
+      }
+      
+      // COMANDO: /ping
+      if (text === "/ping") {
+         await sendTelegramMessage("🏓 <b>PONG!</b> El sistema está operativo.");
+      }
     }
-    
-    // COMANDO: /ping
-    if (text === "/ping") {
-        await sendTelegramMessage("🏓 <b>PONG!</b> El sistema está operativo.");
-    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Error en webhook:", error);
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true });
 }
 
 // Lógica para el comando /stats
 async function handleStatsCommand() {
-  const supabase = await createClient();
+  // USAMOS ADMIN CLIENT PARA SALTARNOS EL RLS (Ya que el bot no tiene cookies de sesión)
+  const supabase = createAdminClient();
 
   // Contar Alumnos
   const { count: students } = await supabase
