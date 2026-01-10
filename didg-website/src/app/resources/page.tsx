@@ -1,6 +1,6 @@
 import { createClient } from "@/infrastructure/supabase/server";
 import { getExtraResources } from "@/core/actions/resources";
-import { ResourceFeed } from "@/components/resources/ResourceFeed"; // <--- Importamos el componente cliente
+import { ResourceFeed } from "@/components/resources/ResourceFeed";
 import { CharmanderPet } from "@/components/home/CharmanderPet";
 import { Sparkles } from "lucide-react";
 
@@ -10,10 +10,8 @@ export default async function ResourcesPage() {
   const supabase = await createClient();
   const resources = await getExtraResources();
 
-  // 1. Obtener usuario actual
   const { data: { user } } = await supabase.auth.getUser();
 
-  // 2. Obtener IDs de los favoritos de ESTE usuario
   let bookmarkedIds = new Set<string>();
   
   if (user) {
@@ -22,11 +20,9 @@ export default async function ResourcesPage() {
         .select("resource_id")
         .eq("user_id", user.id);
     
-    // Creamos un Set para búsqueda O(1) super rápida
     bookmarks?.forEach((b: any) => bookmarkedIds.add(b.resource_id));
   }
 
-  // 3. Inyectar la propiedad isBookmarked a cada recurso
   const resourcesWithStatus = resources?.map((res: any) => ({
     ...res,
     isBookmarked: bookmarkedIds.has(res.id)
@@ -36,7 +32,7 @@ export default async function ResourcesPage() {
     <div className="min-h-screen py-12 px-4 md:px-8 max-w-6xl mx-auto animate-in fade-in duration-500">
       <CharmanderPet />
       
-      {/* HEADER HERO (Se mantiene en el servidor para SEO y carga rápida visual) */}
+      {/* HEADER HERO  */}
       <div className="mb-12 text-center space-y-4">
         <div className="inline-flex items-center justify-center p-3 rounded-full bg-secondary/10 mb-4 ring-1 ring-secondary/30 shadow-[0_0_20px_rgba(124,58,237,0.3)]">
           <Sparkles className="w-6 h-6 text-secondary" />
@@ -49,7 +45,7 @@ export default async function ResourcesPage() {
         </p>
       </div>
 
-      {/* CALL TO ACTION: FEEDBACK (Se mantiene estático) */}
+      {/* CALL TO ACTION: FEEDBACK  */}
       <div className="bg-gradient-to-r from-surface to-background border border-text-main/10 rounded-2xl p-6 mb-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="z-10">
@@ -65,8 +61,7 @@ export default async function ResourcesPage() {
         </div>
       </div>
 
-      {/* FEED INTERACTIVO (Cliente) */}
-      {/* Le pasamos los datos iniciales para que el cliente maneje el filtrado */}
+      {/* FEED INTERACTIVO */}
       <ResourceFeed resources={resourcesWithStatus || []} />
 
     </div>

@@ -5,10 +5,8 @@ import { Card } from "@/components/ui/card";
 import { CharmanderPet } from "@/components/home/CharmanderPet";
 import type { Metadata } from "next";
 
-// 1. CONFIGURACIÓN ISR
 export const revalidate = 60; 
 
-// 2. METADATA
 export const metadata: Metadata = {
   title: "Recursos y Ayudantías | Daniel Durán",
   description: "Material docente, guías de estudio y recursos para estudiantes de Ingeniería Civil Informática.",
@@ -34,14 +32,12 @@ interface Semester {
 export default async function PublicCoursesPage() {
   const supabase = await createClient();
 
-  // Traer solo semestres activos y sus asignaturas
   const { data: rawSemesters } = await supabase
     .from("semesters")
     .select("*, subjects(*)") 
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  // Convertimos y filtramos
   const semestersList = (rawSemesters as unknown as Semester[])?.filter(
     (sem) => sem.subjects && sem.subjects.length > 0
   ) || [];
@@ -86,7 +82,6 @@ export default async function PublicCoursesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {semester.subjects.map((subject) => (
                   <Link key={subject.id} href={`/courses/${subject.id}`} className="group h-full">
-                    {/* CARD ADAPTABLE: bg-surface/50 y border-text-main/10 */}
                     <Card className="h-full p-6 border-text-main/10 bg-surface/50 hover:bg-surface hover:border-secondary/50 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden backdrop-blur-sm shadow-sm hover:shadow-lg hover:shadow-secondary/10">
                       
                       {/* Efecto de brillo en hover */}
@@ -123,7 +118,6 @@ export default async function PublicCoursesPage() {
             </div>
           ))
         ) : (
-          // Estado Vacío Adaptable
           <div className="text-center py-20 border border-dashed border-text-main/10 rounded-2xl bg-surface/30">
               <div className="inline-flex p-4 rounded-full bg-text-main/5 mb-4">
                   <GraduationCap className="w-8 h-8 text-text-muted opacity-50" />

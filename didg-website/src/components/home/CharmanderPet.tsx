@@ -66,7 +66,6 @@ export function CharmanderPet() {
       }, AFK_TIME);
     };
 
-    // Eventos optimizados: 'touchstart' ayuda a despertar rápido en móvil
     window.addEventListener("mousemove", handleActivity);
     window.addEventListener("keydown", handleActivity);
     window.addEventListener("click", handleActivity);
@@ -104,10 +103,6 @@ export function CharmanderPet() {
 
   return (
     <div 
-      // CAMBIOS VISUALES PARA MÓVIL:
-      // 1. left-2 (móvil) -> md:left-4 (escritorio)
-      // 2. z-40 (para estar debajo de modales y botones de acción flotantes)
-      // 3. touch-none (evita zoom accidental al hacer spam click en móviles)
       className="fixed left-2 md:left-4 z-40 cursor-pointer transition-transform hover:scale-110 active:scale-95 touch-none"
       style={{ bottom: `${bottomOffset}px`, transitionProperty: 'transform, bottom', transitionDuration: '100ms' }}
       onClick={handleClick}
@@ -120,10 +115,7 @@ export function CharmanderPet() {
             </div>
         )}
 
-      {/* TAMAÑO DE LA IMAGEN:
-          w-14 h-14 (56px) en móvil -> w-20 h-20 (80px) en escritorio
-          Esto evita que tape mucho texto en pantallas pequeñas.
-      */}
+      {/* TAMAÑO DE LA IMAGEN */}
       <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20">
         <img
           src={SPRITES[status]}

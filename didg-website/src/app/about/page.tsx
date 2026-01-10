@@ -59,7 +59,6 @@ export default function AboutPage() {
             />
           </div>
 
-          {/* Stats Box: bg-surface/50 para efecto cristal en ambos temas */}
           <div className="bg-surface/50 backdrop-blur-sm border border-text-main/10 p-5 rounded-xl space-y-4 font-mono text-sm shadow-lg">
             <div className="flex justify-between border-b border-text-main/5 pb-2">
               <span className="text-text-muted">Ubicación</span>
@@ -87,7 +86,6 @@ export default function AboutPage() {
               <a 
                 href="/CV.pdf"
                 download="CV_Daniel_Duran_ES.pdf"
-                // CAMBIO: bg-surface y border-text-main/10. Se ve sólido en ambos temas.
                 className="flex-1 flex items-center justify-center gap-2 py-3 bg-surface hover:bg-text-main/5 border border-text-main/10 rounded-xl text-text-main transition-all group shadow-sm hover:shadow-md"
                 title="Descargar en Español"
               >
@@ -161,14 +159,12 @@ export default function AboutPage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {skills.map((skillGroup, idx) => (
-            // Card: bg-surface/50 y border-text-main/5
             <div key={skillGroup.category} className="bg-surface/50 border border-text-main/5 p-5 rounded-xl hover:bg-surface transition-all hover:-translate-y-1 duration-300 shadow-sm hover:shadow-md">
               <h4 className="text-sm font-bold text-text-muted uppercase tracking-wider mb-4">
                 {skillGroup.category}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {skillGroup.items.map((item) => (
-                  // Chips: bg-background (hace contraste con la card surface)
                   <span key={item} className="px-2 py-1 rounded bg-background border border-text-main/10 text-xs text-text-muted hover:text-primary hover:border-primary/50 transition-colors cursor-default font-medium">
                     {item}
                   </span>

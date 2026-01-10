@@ -8,7 +8,6 @@ export default async function SubjectDetailPage({ params }: { params: Promise<{ 
   const supabase = await createClient();
   const { subjectId } = await params;
 
-  // 1. Obtener Asignatura
   const { data: subject } = await supabase
     .from("subjects")
     .select("*, semesters(name)")
@@ -17,7 +16,6 @@ export default async function SubjectDetailPage({ params }: { params: Promise<{ 
 
   if (!subject) return <div className="p-8 text-center text-text-muted">Asignatura no encontrada</div>;
 
-  // 2. Obtener Ayudantías
   const { data: ayudantias } = await supabase
     .from("ayudantias")
     .select("*")
@@ -25,9 +23,7 @@ export default async function SubjectDetailPage({ params }: { params: Promise<{ 
 
   const s = subject as any;
 
-  // 3. ORDENAMIENTO HÍBRIDO
   const sortedAyus = (ayudantias as any[])?.sort((a, b) => {
-    // A. Primero por Fecha (Descendente)
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
     
@@ -35,7 +31,6 @@ export default async function SubjectDetailPage({ params }: { params: Promise<{ 
       return dateB - dateA; 
     }
 
-    // B. Desempate por Título Numérico (Descendente)
     return b.title.localeCompare(a.title, undefined, { numeric: true, sensitivity: 'base' });
   });
 
@@ -46,7 +41,6 @@ export default async function SubjectDetailPage({ params }: { params: Promise<{ 
       <div className="flex items-center gap-4">
         <Link 
             href="/dashboard/courses" 
-            // Botón adaptable: hover gris en light / hover blanco en dark
             className="p-2 rounded hover:bg-text-main/5 text-text-muted hover:text-text-main transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -56,7 +50,7 @@ export default async function SubjectDetailPage({ params }: { params: Promise<{ 
             {/* Título adaptable */}
             <h1 className="text-3xl font-display font-bold text-text-main">{s.name}</h1>
             
-            {/* Badge adaptable: bg-primary/10 se ve bien en ambos */}
+            {/* Badge adaptable*/}
             <span className="text-xs font-mono px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-bold">
               {s.semesters?.name}
             </span>
@@ -80,7 +74,6 @@ export default async function SubjectDetailPage({ params }: { params: Promise<{ 
 
         {/* COLUMNA DERECHA: FORMULARIO DE CREACIÓN */}
         <div className="sticky top-8 h-fit"> 
-           {/* El formulario (AyudantiaForm) debe tener bg-surface para contrastar aquí */}
            <AyudantiaForm subjectId={subjectId} />
         </div>
 

@@ -38,7 +38,6 @@ export default function NewProjectPage() {
         </Link>
       </div>
 
-      {/* Formulario Adaptable: bg-surface/50 */}
       <form onSubmit={handleSubmit} className="space-y-6 bg-surface/50 border border-text-main/10 p-8 rounded-xl backdrop-blur-md shadow-sm">
         
         {/* Título y Categoría */}
@@ -49,7 +48,6 @@ export default function NewProjectPage() {
                 name="title" 
                 required 
                 placeholder="Ej: Sistema de Riego IoT" 
-                // Input Adaptable
                 className="w-full bg-background/50 border border-text-main/10 rounded p-3 text-text-main focus:border-primary/50 outline-none transition-colors placeholder:text-text-muted/50" 
             />
           </div>
@@ -101,7 +99,6 @@ export default function NewProjectPage() {
             type="date" 
             name="project_date" 
             required
-            // color-scheme permite que el calendario nativo del navegador se adapte a light/dark
             className="w-full bg-background/50 border border-text-main/10 rounded p-3 text-text-main focus:border-primary/50 outline-none block [color-scheme:light dark]"
           />
         </div>
@@ -148,7 +145,6 @@ export default function NewProjectPage() {
 
         {/* OPCIONES DE VISIBILIDAD */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-text-main/10">
-            {/* Checkbox Publicado: bg-background/50 */}
             <label className="flex items-center gap-3 p-3 rounded border border-text-main/10 bg-background/50 cursor-pointer hover:bg-text-main/5 transition-colors">
                 <input type="checkbox" name="is_published" defaultChecked className="w-4 h-4 rounded border-text-main/20 text-primary focus:ring-primary bg-transparent" />
                 <div className="flex flex-col">
@@ -159,7 +155,6 @@ export default function NewProjectPage() {
                 </div>
             </label>
 
-            {/* Checkbox Destacado: bg-background/50 */}
             <label className="flex items-center gap-3 p-3 rounded border border-text-main/10 bg-background/50 cursor-pointer hover:bg-text-main/5 transition-colors">
                 <input type="checkbox" name="is_featured" className="w-4 h-4 rounded border-text-main/20 text-secondary focus:ring-secondary bg-transparent" />
                 <div className="flex flex-col">

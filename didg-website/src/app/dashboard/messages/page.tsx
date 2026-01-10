@@ -6,7 +6,6 @@ import { es } from "date-fns/locale";
 export default async function MessagesPage() {
   const supabase = await createClient();
 
-  // Obtenemos los mensajes ordenados por fecha
   const { data: messages } = await supabase
     .from("messages")
     .select("*")
@@ -29,7 +28,6 @@ export default async function MessagesPage() {
 
       <div className="grid gap-4">
         {(!messages || messages.length === 0) ? (
-            // Estado vacío adaptable
             <div className="p-12 text-center border border-dashed border-text-main/10 rounded-xl bg-surface/30 text-text-muted">
                 <AlertCircle className="w-10 h-10 mx-auto mb-4 opacity-50" />
                 <p>No hay mensajes registrados aún.</p>
@@ -40,9 +38,7 @@ export default async function MessagesPage() {
                     key={msg.id} 
                     className={`p-6 rounded-xl border transition-all hover:border-primary/50 group relative overflow-hidden ${
                         msg.is_read 
-                        // Leído: Más transparente, se funde con el fondo
                         ? "bg-surface/30 border-text-main/5 opacity-80 hover:opacity-100" 
-                        // No Leído: Sólido, sombra, borde primario
                         : "bg-surface border-primary/30 shadow-lg shadow-primary/5"
                     }`}
                 >
@@ -63,14 +59,12 @@ export default async function MessagesPage() {
                             </div>
                         </div>
 
-                        {/* Fecha: bg-background/50 para contraste */}
                         <div className="flex items-center gap-2 text-xs font-mono text-text-muted bg-background/50 px-2 py-1 rounded border border-text-main/5 h-fit whitespace-nowrap">
                             <Calendar className="w-3 h-3" />
                             {format(new Date(msg.created_at), "dd MMM yyyy, HH:mm", { locale: es })}
                         </div>
                     </div>
 
-                    {/* Cuerpo del mensaje: bg-background/50 crea una "caja" legible */}
                     <div className="p-4 rounded-lg bg-background/50 border border-text-main/5 text-sm text-text-muted font-mono leading-relaxed whitespace-pre-wrap">
                         {msg.message}
                     </div>

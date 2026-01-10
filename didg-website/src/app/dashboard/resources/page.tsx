@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic';
 export default async function AdminResourcesPage() {
   const supabase = await createClient();
 
-  // Obtenemos los recursos directo de la DB
   const { data: resources } = await supabase
     .from("extra_resources")
     .select("*")

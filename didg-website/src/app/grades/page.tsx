@@ -9,7 +9,6 @@ export default async function StudentGradesPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Obtener asignaturas inscritas + Notas
   const { data: enrollments } = await supabase
     .from("enrollments")
     .select(`
@@ -43,13 +42,11 @@ export default async function StudentGradesPage() {
 
       <div className="grid gap-6">
         {enrollments?.map((item: any) => {
-          // Calcular promedio simple
           const totalGrades = item.grades.length;
           const sum = item.grades.reduce((acc: number, g: any) => acc + g.score, 0);
           const average = totalGrades > 0 ? (sum / totalGrades).toFixed(1) : "-";
 
           return (
-            // Card Asignatura: bg-surface/50 y border-text-main/10
             <div key={item.id} className="bg-surface/50 backdrop-blur-sm border border-text-main/10 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               
               {/* Cabecera Asignatura */}
@@ -63,7 +60,6 @@ export default async function StudentGradesPage() {
                 </div>
                 <div className="text-right">
                   <span className="text-xs text-text-muted block uppercase font-bold">Promedio Actual</span>
-                  {/* Color Semántico: emerald-500 y red-500 funcionan bien en light y dark */}
                   <span className={`text-xl font-bold font-mono ${Number(average) >= 4.0 ? 'text-emerald-500' : 'text-red-500'}`}>
                     {average}
                   </span>
@@ -77,7 +73,6 @@ export default async function StudentGradesPage() {
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {item.grades.map((grade: any, idx: number) => (
-                      // Casilla de Nota: bg-background/50
                       <div key={idx} className="bg-background/50 p-3 rounded border border-text-main/5 flex flex-col items-center hover:border-text-main/20 transition-colors">
                         <span className="text-xs text-text-muted mb-1 text-center truncate w-full font-medium" title={grade.name}>
                             {grade.name}

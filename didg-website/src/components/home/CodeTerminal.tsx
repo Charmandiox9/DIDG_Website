@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Play, Terminal, Loader2, Copy, Check, RotateCcw, Eraser } from "lucide-react";
 import { cn } from "@/core/utils/cn";
 
-// Configuración de lenguajes (Igual que antes)
 const LANGUAGES = [
   { 
     id: "python", 
@@ -50,11 +49,8 @@ export function CodeTerminal() {
   const [isRunning, setIsRunning] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
-  // Función para ejecutar código
   const runCode = async () => {
     setIsRunning(true);
-    // No borramos el output anterior inmediatamente para dar sensación de continuidad, 
-    // o puedes usar setOutput("") si prefieres limpiar antes.
     
     try {
       const response = await fetch("https://emkc.org/api/v2/piston/execute", {
@@ -87,7 +83,6 @@ export function CodeTerminal() {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  // NUEVO: Resetear al snippet original
   const handleReset = () => {
     if (confirm("¿Restaurar el código por defecto? Se perderán tus cambios.")) {
         setCode(activeLang.snippet);
@@ -95,17 +90,14 @@ export function CodeTerminal() {
     }
   };
 
-  // NUEVO: Limpiar consola
   const handleClear = () => {
     setOutput("");
   };
 
   return (
-    // CAMBIO: bg-surface y border-text-main/10 para adaptarse al tema
     <div className="w-full max-w-5xl mx-auto rounded-xl overflow-hidden border border-text-main/10 shadow-2xl bg-surface text-text-main font-mono text-sm group hover:border-primary/30 transition-all duration-300 flex flex-col">
       
       {/* --- HEADER --- */}
-      {/* CAMBIO: bg-background/50 para contraste sutil */}
       <div className="flex flex-col sm:flex-row items-center justify-between bg-background/50 px-4 py-2 border-b border-text-main/10 gap-4">
         
         {/* Lenguajes */}
@@ -157,7 +149,6 @@ export function CodeTerminal() {
       <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[400px]">
         
         {/* EDITOR (Izquierda) */}
-        {/* CAMBIO: bg-surface para que se vea limpio en Light Mode */}
         <div className="relative border-b lg:border-b-0 lg:border-r border-text-main/10 bg-surface flex flex-col">
           <div className="absolute top-0 left-0 w-4 h-full bg-text-main/5 border-r border-text-main/5 z-0 pointer-events-none" /> {/* Decoración gutter */}
           <textarea
@@ -182,8 +173,6 @@ export function CodeTerminal() {
         </div>
 
         {/* CONSOLA (Derecha) */}
-        {/* DECISIÓN DE DISEÑO: La consola siempre se ve mejor oscura (tipo Hacker) incluso en Light Mode. 
-            Usamos bg-[#0F0F0F] fijo para mantener esa estética, pero con bordes adaptables. */}
         <div className="bg-[#121212] p-4 flex flex-col font-mono relative min-h-[200px] border-t lg:border-t-0 border-white/10">
           
           <div className="flex justify-between items-center mb-2">

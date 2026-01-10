@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/infrastructure/supabase/client";
 import { Lock, User, Terminal, Save, ShieldCheck, AlertCircle, Loader2, RefreshCw, Database, HardDrive } from "lucide-react";
 import { checkBotStatus } from "@/core/actions/telegram";
-// 1. IMPORTAMOS LA NUEVA ACCIÓN
 import { getSystemStatus } from "@/core/actions/system";
 
 export default function SettingsPage() {
@@ -12,7 +11,6 @@ export default function SettingsPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const supabase = createClient();
 
-  // --- LÓGICA DE PASSWORD (Igual que antes) ---
   const handlePasswordUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -41,20 +39,14 @@ export default function SettingsPage() {
     setLoading(false);
   };
 
-  // --- ESTADOS DE MONITOREO ---
   const [checking, setChecking] = useState(true);
-  // Telegram
   const [botStatus, setBotStatus] = useState<'online' | 'offline'>('offline');
   const [botName, setBotName] = useState("");
-  // Database
   const [dbStatus, setDbStatus] = useState<{ status: string, latency: number, count: number }>({ status: 'offline', latency: 0, count: 0 });
-  // Storage
   const [storageStatus, setStorageStatus] = useState<{ status: string, buckets: number }>({ status: 'offline', buckets: 0 });
-  // Usuario
   const [userEmail, setUserEmail] = useState("Cargando...");
   const [lastSignIn, setLastSignIn] = useState("");
 
-  // Efecto inicial
   useEffect(() => {
     checkAllSystems();
     getUserInfo();
@@ -63,13 +55,11 @@ export default function SettingsPage() {
   const checkAllSystems = async () => {
     setChecking(true);
     
-    // 1. Ejecutar promesas en paralelo para mayor velocidad
     const [botRes, systemRes] = await Promise.all([
         checkBotStatus(),
         getSystemStatus()
     ]);
 
-    // 2. Actualizar Telegram
     if (botRes.ok) {
       setBotStatus('online');
       setBotName(botRes.username || "Bot Activo");
@@ -77,7 +67,6 @@ export default function SettingsPage() {
       setBotStatus('offline');
     }
 
-    // 3. Actualizar DB y Storage (Datos reales)
     setDbStatus({
         status: systemRes.db.status,
         latency: systemRes.db.latency,
@@ -96,7 +85,6 @@ export default function SettingsPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
         setUserEmail(user.email || "Sin Email");
-        // Formatear fecha de último login
         if (user.last_sign_in_at) {
             const date = new Date(user.last_sign_in_at);
             setLastSignIn(date.toLocaleString('es-CL', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }));
@@ -104,7 +92,6 @@ export default function SettingsPage() {
     }
   };
 
-  // Componente auxiliar para el Badge de estado
   const StatusBadge = ({ status, label }: { status: string, label?: string }) => {
     if (checking) {
         return (
@@ -175,7 +162,7 @@ export default function SettingsPage() {
           </form>
         </div>
 
-        {/* TARJETA 2: ESTADO DEL SISTEMA (Real) */}
+        {/* TARJETA 2: ESTADO DEL SISTEMA */}
         <div className="space-y-6">
             
             <div className="bg-surface/50 border border-text-main/10 p-6 rounded-xl shadow-sm">

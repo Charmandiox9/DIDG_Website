@@ -6,7 +6,6 @@ import { Users } from "lucide-react";
 export default async function StudentsPage() {
   const supabase = await createClient();
 
-  // Traer la lista de estudiantes
   const { data: students } = await supabase
     .from("profiles")
     .select("*")
@@ -25,7 +24,6 @@ export default async function StudentsPage() {
         
         {/* COLUMNA IZQUIERDA: Tabla */}
         <div className="lg:col-span-2 space-y-4">
-           {/* Subtítulo adaptable */}
            <h2 className="text-xl font-bold text-text-main">Listado de Alumnos</h2>
            <StudentsTable students={students || []} />
         </div>

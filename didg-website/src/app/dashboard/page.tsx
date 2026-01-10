@@ -1,14 +1,12 @@
 import { createClient } from "@/infrastructure/supabase/server";
-// 1. IMPORTAR LA NUEVA ACCIÓN Y EL COMPONENTE
 import { getDownloadsBySubject, getRecentDownloads } from "@/core/actions/analytics";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
-import { RecentDownloads } from "@/components/dashboard/RecentDownloads"; // <--- NUEVO
+import { RecentDownloads } from "@/components/dashboard/RecentDownloads";
 import { Code2, BookOpen, Users, BarChart3 } from "lucide-react";
 
 export default async function DashboardPage() {
   const supabase = await createClient(); 
   
-  // --- CARGA DE DATOS EXISTENTE ---
   const { count: projectsCount } = await supabase
     .from('projects')
     .select('*', { count: 'exact', head: true });
@@ -22,11 +20,9 @@ export default async function DashboardPage() {
     .select('*', { count: 'exact', head: true })
     .eq('role', 'student');
 
-  // --- CARGA DE DATOS DE ANALYTICS ---
-  // Usamos Promise.all para que carguen en paralelo (más rápido)
   const [downloadsData, recentDownloads] = await Promise.all([
     getDownloadsBySubject(),
-    getRecentDownloads() // <--- Cargamos las últimas 3
+    getRecentDownloads()
   ]);
 
   const stats = [
@@ -97,7 +93,6 @@ export default async function DashboardPage() {
 
         {/* COLUMNA DERECHA (1/3): Últimas Descargas (Feed) */}
         <div className="col-span-1 lg:col-span-1">
-             {/* <--- AQUÍ PONEMOS EL NUEVO COMPONENTE */}
              <RecentDownloads data={recentDownloads} />
         </div>
       </div>

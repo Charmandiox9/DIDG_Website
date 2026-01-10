@@ -21,7 +21,6 @@ export default async function Home() {
 
   const supabase = await createClient();
   
-  // 3. QUERY PROYECTOS
   const { data: featuredProjects } = await supabase
     .from("projects")
     .select("*")
@@ -29,7 +28,6 @@ export default async function Home() {
     .order("created_at", { ascending: false })
     .limit(3);
 
-  // 4. QUERY AYUDANTÍAS
   const { data: latestSubjects } = await supabase
     .from("subjects")
     .select("*, semesters(name)")
@@ -49,7 +47,6 @@ export default async function Home() {
       {/* --- HERO SECTION --- */}
       <div className="relative z-10 text-center max-w-4xl mx-auto space-y-2 pt-2 animate-in fade-in slide-in-from-bottom-8 duration-1000">
         
-        {/* Luces de fondo (Primary/Secondary funcionan en ambos temas) */}
         <div className="absolute top-1/4 -left-20 w-72 h-72 bg-primary/20 rounded-full blur-[100px] -z-10" />
         <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-secondary/20 rounded-full blur-[100px] -z-10" />
 
@@ -65,7 +62,6 @@ export default async function Home() {
         {/* Título */}
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold tracking-tight text-text-main leading-tight">
           BUILDING SOFTWARE <br />
-          {/* CAMBIO: via-text-main para que el texto no desaparezca en fondo blanco */}
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-text-main to-secondary animate-gradient-x drop-shadow-sm">
             AND TEACHING HOW
           </span>
@@ -90,7 +86,6 @@ export default async function Home() {
           
           <Link 
             href="/contact" 
-            // CAMBIO: border-text-main/10 y hover:bg-text-main/5
             className="px-8 py-4 bg-transparent border border-text-main/10 text-text-main font-mono rounded hover:bg-text-main/5 transition-all duration-300"
           >
             Contactar
@@ -152,14 +147,12 @@ export default async function Home() {
                 <Link 
                   href={`/courses/${subject.id}`} 
                   key={subject.id}
-                  // CAMBIO: bg-surface/40 y border-text-main/10
                   className="group relative bg-surface/40 backdrop-blur-md border border-text-main/10 rounded-xl p-5 hover:border-secondary/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden hover:shadow-lg"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     
                     <div className="relative z-10 flex flex-col h-full">
                         <div className="flex justify-between items-start mb-3">
-                            {/* Icon Box Adaptable */}
                             <div className="p-2 bg-background/50 rounded-lg text-secondary border border-text-main/5">
                                 <BookOpen className="w-5 h-5" />
                             </div>
@@ -186,7 +179,6 @@ export default async function Home() {
       {/* --- SECCIÓN: COMPILADOR --- */}
       <section className="container mx-auto px-4 w-full max-w-5xl">
         <div className="text-center mb-12 space-y-4">
-          {/* Badge Adaptable */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-text-main/10 text-xs font-mono text-primary mb-4 shadow-sm">
              <TerminalSquare className="w-3 h-3" />
              <span>LIVE COMPILER</span>

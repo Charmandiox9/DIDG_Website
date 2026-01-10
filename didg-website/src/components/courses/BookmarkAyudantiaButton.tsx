@@ -15,7 +15,7 @@ export function BookmarkAyudantiaButton({ ayudantiaId, initialState }: Props) {
   const [loading, setLoading] = useState(false);
 
   const handleClick = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Evitar que se abra el modal al dar like
+    e.stopPropagation();
     if (loading) return;
     
     const previousState = isBookmarked;
@@ -31,7 +31,6 @@ export function BookmarkAyudantiaButton({ ayudantiaId, initialState }: Props) {
     <button
       onClick={handleClick}
       disabled={loading}
-      // Ajustamos estilos para que se vea bien en la tarjeta del timeline
       className="p-2 rounded-full hover:bg-red-500/10 transition-all group/heart z-20"
       title={isBookmarked ? "Quitar de biblioteca" : "Guardar en biblioteca"}
     >

@@ -14,7 +14,6 @@ export function AyudantiaList({ ayudantias, subjectName, bookmarkedIds }: Props)
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"ALL" | "PDF" | "VIDEO">("ALL");
 
-  // Lógica de filtrado
   const filtered = ayudantias.filter((ayu) => {
     const matchesSearch = ayu.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           ayu.description?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -31,7 +30,6 @@ export function AyudantiaList({ ayudantias, subjectName, bookmarkedIds }: Props)
     <div className="space-y-6">
       
       {/* --- BARRA DE BÚSQUEDA Y FILTROS --- */}
-      {/* Fondo surface/50 para que se adapte al tema (blanco/negro) con blur */}
       <div className="flex flex-col sm:flex-row gap-4 bg-surface/50 p-4 rounded-xl border border-text-main/10 backdrop-blur-md sticky top-4 z-40 shadow-xl transition-all duration-300">
         
         {/* Input Buscador */}
@@ -40,7 +38,6 @@ export function AyudantiaList({ ayudantias, subjectName, bookmarkedIds }: Props)
           <input 
             type="text" 
             placeholder="Buscar ayudantía..." 
-            // CAMBIO: bg-background/50 y text-text-main
             className="w-full bg-background/50 border border-text-main/10 rounded-lg pl-10 pr-4 py-2 text-sm text-text-main placeholder:text-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -83,7 +80,6 @@ export function AyudantiaList({ ayudantias, subjectName, bookmarkedIds }: Props)
       </div>
 
       {/* --- TIMELINE --- */}
-      {/* Línea vertical: via-text-main/10 para que sea visible en gris o blanco */}
       <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-text-main/10 before:to-transparent">
         {filtered.map((ayu) => {
             const isPdf = ayu.material_url?.toLowerCase().endsWith('.pdf');

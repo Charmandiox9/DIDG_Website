@@ -8,8 +8,8 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   type: 'request' | 'report';
-  resourceTitle?: string; // Si es reporte, pasamos el nombre del archivo
-  subjectName?: string; // Pasamos el nombre de la materia
+  resourceTitle?: string;
+  subjectName?: string;
 }
 
 export function FeedbackModal({ isOpen, onClose, type, resourceTitle, subjectName }: Props) {
@@ -28,7 +28,6 @@ export function FeedbackModal({ isOpen, onClose, type, resourceTitle, subjectNam
     setLoading(false);
     setSent(true);
     
-    // Cerrar automáticamente después de 2 seg
     setTimeout(() => {
       setSent(false);
       setMessage("");

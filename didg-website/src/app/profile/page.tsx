@@ -2,18 +2,16 @@ import { createClient } from "@/infrastructure/supabase/server";
 import { redirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { CharmanderPet } from "@/components/home/CharmanderPet";
-import { ProfileTabs } from "@/components/profile/ProfileTabs"; // <--- Importamos el nuevo componente
+import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { getUserBookmarks } from "@/core/actions/bookmarks";
 import { getUserAyudantiaBookmarks } from "@/core/actions/bookmarks-ayudantias";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
 
-  // 1. Verificar Sesión
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // 2. Obtener datos del perfil
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")

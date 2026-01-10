@@ -9,8 +9,8 @@ import { CommandMenu } from "@/components/layout/CommandMenu";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { GlobalRequestButton } from "@/components/feedback/GlobalRequestButton";
 import { HideUIToggle } from "@/components/ui/HideUIToggle";
+import { Analytics } from "@vercel/analytics/react"
 
-// 1. IMPORTAR EL NUEVO PROVIDER
 import { FloatingUIProvider } from "@/context/FloatingUIContext"; 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -41,14 +41,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-            {/* 2. AGREGAR EL FLOATING UI PROVIDER AQUÍ */}
             <FloatingUIProvider>
             
                 <Navbar>
                    <AuthButtons />
                 </Navbar>
 
-                {/* Estos componentes ahora SÍ funcionarán porque están dentro del Provider */}
                 <HideUIToggle />
                 <CommandMenu />
                 <GlobalRequestButton />
@@ -60,12 +58,12 @@ export default function RootLayout({
                 
                 <Footer />
 
-                {/* El fondo */}
                 <div className="fixed inset-0 z-[-1] bg-background transition-colors duration-300">
                   <div className="absolute inset-0 bg-grid opacity-20" />
                 </div>
 
             </FloatingUIProvider>
+            <Analytics />
             
         </ThemeProvider>
       </body>

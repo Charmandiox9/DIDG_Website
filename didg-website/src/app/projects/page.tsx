@@ -28,7 +28,6 @@ export default async function PublicProjectsPage() {
     console.error("Error fetching projects:", error);
   }
 
-  // Extracción de etiquetas únicas
   const allTags = Array.from(
     new Set(projects?.flatMap((p: any) => p.tech_stack || []) || [])
   ).sort();
@@ -40,7 +39,7 @@ export default async function PublicProjectsPage() {
       {/* Header Sección */}
       <div className="mb-16 text-center space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
-        {/* Icono con Glow dinámico (usa var(--primary-glow)) */}
+        {/* Icono con Glow dinámico */}
         <div className="inline-flex items-center justify-center p-3 rounded-full bg-primary/10 mb-4 ring-1 ring-primary/30 shadow-[0_0_20px_var(--primary-glow)]">
           <Terminal className="w-6 h-6 text-primary" />
         </div>
@@ -62,7 +61,6 @@ export default async function PublicProjectsPage() {
             availableTags={allTags} 
           />
       ) : (
-        // Estado Vacío Adaptable
         <div className="text-center py-20 border border-dashed border-text-main/10 rounded-2xl bg-surface/50 backdrop-blur-sm animate-in zoom-in duration-500">
           <div className="flex flex-col items-center gap-4">
             <div className="p-4 rounded-full bg-text-muted/10">

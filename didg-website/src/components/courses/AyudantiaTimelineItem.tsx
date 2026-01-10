@@ -22,9 +22,7 @@ interface Props {
 export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "General", isBookmarked = false }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Configuración de Markdown (Adaptada a temas)
   const markdownComponents = {
-    // Títulos: text-text-main
     h1: ({node, ...props}: any) => <h4 className="text-base font-bold text-text-main mt-3 mb-1 uppercase border-b border-text-main/10 pb-1" {...props} />,
     h2: ({node, ...props}: any) => <h5 className="text-sm font-bold text-secondary mt-3 mb-1" {...props} />,
     p: ({node, ...props}: any) => <div className="mb-2 leading-relaxed text-text-muted" {...props} />,
@@ -35,7 +33,6 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
     img: ({node, ...props}: any) => (
        <img className="rounded-md max-w-full my-2 inline-block border border-text-main/10" {...props} alt={props.alt || "Imagen"} />
     ),
-    // Code: bg-surface en lugar de bg-black/30
     code: ({node, ...props}: any) => <code className="bg-surface border border-text-main/10 px-1 rounded font-mono text-xs text-primary" {...props} />,
     strong: ({node, ...props}: any) => <strong className="text-text-main font-semibold" {...props} />,
     hr: ({node, ...props}: any) => <hr className="my-3 border-text-main/10" {...props} />
@@ -46,12 +43,12 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
       {/* --- TARJETA DEL TIMELINE --- */}
       <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
         
-        {/* Icono Central (Timeline): bg-background para tapar la línea */}
+        {/* Icono Central (Timeline) */}
         <div className="flex items-center justify-center w-10 h-10 rounded-full border border-text-main/10 bg-background shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-secondary transition-colors duration-300">
           <Calendar className="w-5 h-5" />
         </div>
 
-        {/* Tarjeta Visual: bg-surface/50 para que sea clara en light mode y oscura en dark mode */}
+        {/* Tarjeta Visual */}
         <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-xl border border-text-main/10 bg-surface/50 hover:border-secondary/30 transition-all shadow-lg backdrop-blur-sm relative overflow-hidden flex flex-col group-hover:shadow-xl">
           
           <div className="flex items-center justify-between mb-2">
@@ -59,7 +56,7 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
               suppressHydrationWarning 
               className="font-mono text-xs text-text-muted"
             >
-              {/* RECOMENDACIÓN: Forzar formato español */}
+              {/* RECOMENDACIÓN */}
               {new Date(ayu.date).toLocaleDateString('es-CL', { timeZone: 'UTC' })}
             </time>
             {ayu.video_url && <Video className="w-4 h-4 text-red-400" />}
@@ -81,7 +78,7 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
               </ReactMarkdown>
             </div>
             
-            {/* Degradado adaptable: from-surface (se funde con el color de la tarjeta) */}
+            {/* Degradado adaptable */}
             <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface to-transparent pointer-events-none" />
           </div>
 
@@ -102,7 +99,7 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
           className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           onClick={() => setIsOpen(false)}
         >
-          {/* Modal Container: bg-background */}
+          {/* Modal Container */}
           <div 
             className="bg-background border border-text-main/10 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
@@ -122,7 +119,7 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
               </button>
             </div>
 
-            {/* Body Modal (Scrollable) */}
+            {/* Body Modal */}
             <div className="p-6 overflow-y-auto custom-scrollbar bg-background">
                <div className="prose prose-sm max-w-none text-text-muted prose-headings:text-text-main prose-strong:text-text-main prose-code:text-primary">
                  <ReactMarkdown 
@@ -135,15 +132,13 @@ export function AyudantiaTimelineItem({ ayu, publicUrl, isPdf, subjectName = "Ge
                </div>
             </div>
 
-            {/* Footer Modal (Archivos y Links) */}
+            {/* Footer Modal */}
             <div className="p-6 border-t border-text-main/10 bg-surface/30 flex flex-wrap gap-3">
                 {ayu.material_url ? (
                   <div className="flex gap-2">
                     <DownloadButton 
                         filePath={ayu.material_url} 
-                        // Usamos el título de la ayudantía como nombre del archivo para el reporte
                         fileName={ayu.title} 
-                        // Pasamos el nombre de la asignatura
                         subjectName={subjectName}
                     />
                     {isPdf && (

@@ -32,7 +32,6 @@ export default async function ProjectsListPage() {
         </div>
         <Link
           href="/dashboard/projects/new"
-          // Botón Primary con texto Background (alto contraste)
           className="flex items-center gap-2 bg-primary text-background px-4 py-2 rounded font-bold hover:opacity-90 transition-all shadow-sm hover:shadow-[0_0_15px_var(--primary-glow)]"
         >
           <Plus className="w-4 h-4" />
@@ -40,11 +39,10 @@ export default async function ProjectsListPage() {
         </Link>
       </div>
 
-      {/* Tabla Contenedor: bg-surface/50 y border-text-main/10 */}
+      {/* Tabla Contenedor */}
       <div className="rounded-xl border border-text-main/10 bg-surface/50 backdrop-blur-sm overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
-            {/* Header: bg-surface y border-text-main/10 */}
             <tr className="border-b border-text-main/10 bg-surface text-xs uppercase font-mono text-text-muted">
               <th className="p-4">Proyecto</th>
               <th className="p-4">Categoría</th>
@@ -53,7 +51,6 @@ export default async function ProjectsListPage() {
               <th className="p-4 text-right">Acciones</th>
             </tr>
           </thead>
-          {/* Divide: border-text-main/10 */}
           <tbody className="divide-y divide-text-main/10">
             {projects?.length === 0 ? (
               <tr>
@@ -67,12 +64,11 @@ export default async function ProjectsListPage() {
                 const displayDate = project.project_date || project.created_at;
 
                 return (
-                  // Row Hover: bg-text-main/5 (se ve bien en light y dark)
                   <tr key={project.id} className="group hover:bg-text-main/5 transition-colors">
                     
                     <td className="p-4">
                       <div className="flex items-center gap-4">
-                        {/* Image Placeholder: bg-background y border-text-main/10 */}
+                        {/* Image Placeholder */}
                         <div className="w-12 h-12 rounded bg-background border border-text-main/10 overflow-hidden relative flex-shrink-0">
                           {project.image_urls?.[0] ? (
                             <Image src={project.image_urls[0]} alt={project.title} fill className="object-cover" />
@@ -81,7 +77,7 @@ export default async function ProjectsListPage() {
                           )}
                         </div>
                         <div>
-                          {/* Title: text-text-main */}
+                          {/* Title */}
                           <p className="font-bold text-text-main group-hover:text-primary transition-colors">{project.title}</p>
                           <p className="text-xs text-text-muted line-clamp-1 max-w-[200px]">{project.description}</p>
                         </div>
@@ -114,7 +110,6 @@ export default async function ProjectsListPage() {
                     <td className="p-4">
                       <div className="flex flex-wrap gap-1">
                         {project.tech_stack?.slice(0, 3).map((tech: string) => (
-                           // Tags: bg-background/50 y border-text-main/10
                            <span key={tech} className="px-1.5 py-0.5 rounded bg-background/50 text-[10px] font-mono text-text-muted border border-text-main/10">
                                {tech}
                            </span>
@@ -126,7 +121,6 @@ export default async function ProjectsListPage() {
                       <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <Link 
                           href={`/dashboard/projects/${project.id}/edit`} 
-                          // Actions: Hover text-primary
                           className="p-2 hover:bg-primary/10 hover:text-primary rounded text-text-muted transition-colors" 
                           title="Editar"
                         >

@@ -24,13 +24,12 @@ export default async function CoursesDashboard() {
           <p className="text-text-muted font-mono text-sm">Organiza semestres y materias.</p>
         </div>
         
-        {/* Formulario Crear Semestre: bg-surface/50 y border-text-main/10 */}
+        {/* Formulario Crear Semestre */}
         <form action={createSemester} className="flex gap-2 bg-surface/50 p-2 rounded border border-text-main/10 shadow-sm">
           <input 
             name="name" 
             placeholder="Nuevo Semestre (Ej: 2024-2)" 
             required 
-            // Input adaptable: text-text-main
             className="bg-transparent text-text-main text-sm px-2 focus:outline-none font-mono placeholder:text-text-muted" 
           />
           <button type="submit" className="bg-primary/10 hover:bg-primary/20 text-primary p-2 rounded transition-colors">
@@ -42,7 +41,6 @@ export default async function CoursesDashboard() {
       {/* LISTA DE SEMESTRES */}
       <div className="grid gap-6">
         {semestersList?.map((semester) => (
-          // Borde lateral adaptable: border-text-main/10 si está inactivo
           <div key={semester.id} className={`relative border-l-2 pl-6 py-2 ${semester.is_active ? 'border-primary' : 'border-text-main/10 opacity-70'}`}>
             
             <div className="flex items-center gap-4 mb-4">
@@ -72,7 +70,6 @@ export default async function CoursesDashboard() {
                     <input 
                         name="name" 
                         placeholder="Nombre" 
-                        // Input adaptable: bg-background/50
                         className="w-full bg-background/50 text-xs p-2 rounded text-text-main border border-text-main/10 focus:border-primary/50 outline-none" 
                         required 
                     />
@@ -92,7 +89,6 @@ export default async function CoursesDashboard() {
 
               {/* ASIGNATURAS */}
               {semester.subjects?.map((subject: any) => (
-                // Card Subject: bg-surface (asumido en el componente Card)
                 <Card key={subject.id} className="group hover:border-primary/50 transition-colors relative bg-surface border-text-main/10">
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
@@ -120,7 +116,6 @@ export default async function CoursesDashboard() {
                         {/* Botón 1: Subir Notas */}
                         <Link 
                             href={`/dashboard/grades?subject_id=${subject.id}`}
-                            // Emerald-500 para legibilidad
                             className="flex-1 flex items-center justify-center gap-2 text-xs py-2 rounded bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-colors border border-emerald-500/20 font-medium"
                             title="Cargar Notas Masivas"
                         >

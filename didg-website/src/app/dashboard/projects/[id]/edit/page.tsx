@@ -7,7 +7,6 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
   const supabase = await createClient();
   const { id } = await params;
 
-  // 1. Cargar datos actuales del proyecto
   const { data: project } = await supabase
     .from("projects")
     .select("*")
@@ -36,7 +35,6 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
         </Link>
       </div>
 
-      {/* Formulario: bg-surface/50 y border-text-main/10 */}
       <form action={updateProject.bind(null, id)} className="space-y-6 bg-surface/50 border border-text-main/10 p-8 rounded-xl backdrop-blur-md shadow-sm">
         
         {/* Título y Categoría */}
@@ -47,7 +45,6 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
               name="title" 
               defaultValue={p.title} 
               required 
-              // Input Adaptable: bg-background/50 y text-text-main
               className="w-full bg-background/50 border border-text-main/10 rounded p-3 text-text-main focus:border-primary/50 outline-none transition-colors" 
             />
           </div>
@@ -56,7 +53,6 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
             <select 
               name="category" 
               defaultValue={p.category} 
-              // Select Adaptable
               className="w-full bg-background/50 border border-text-main/10 rounded p-3 text-text-main focus:border-primary/50 outline-none appearance-none cursor-pointer"
             >
               <option value="software" className="bg-background text-text-main">Software</option>

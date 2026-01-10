@@ -1,12 +1,11 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { initiateLogin, completeLogin } from "@/core/actions/auth-2fa"; // Asegúrate de tener este archivo creado según el paso anterior
+import { initiateLogin, completeLogin } from "@/core/actions/auth-2fa";
 import { Lock, Mail, KeyRound, Loader2, AlertCircle, ShieldCheck, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 
-// Estado inicial
 const initialState = { 
   error: "", 
   step: "login", 
@@ -14,7 +13,6 @@ const initialState = {
   password: "" 
 };
 
-// Componente del Botón (para manejar el estado de carga automáticamente)
 function SubmitButton({ step }: { step: string }) {
   const { pending } = useFormStatus();
   
@@ -40,7 +38,6 @@ function SubmitButton({ step }: { step: string }) {
 }
 
 export default function LoginPage() {
-  // Unificador de acciones: Decide qué función llamar según el paso actual
   const [state, formAction] = useFormState(async (prev: any, formData: FormData) => {
     if (prev.step === "verify_2fa") {
       return await completeLogin(prev, formData);
@@ -49,7 +46,6 @@ export default function LoginPage() {
     }
   }, initialState);
 
-  // Referencia para enfocar el input de código cuando aparece
   const codeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

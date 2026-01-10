@@ -105,10 +105,6 @@ export default function ContactPage() {
               <input 
                 name="name" 
                 required 
-                // CAMBIOS CRÍTICOS EN INPUTS:
-                // text-text-main: Para que se vea el texto al escribir
-                // placeholder:text-text-muted: Para que el placeholder sea gris
-                // bg-background/50: Fondo semi-transparente del color del tema
                 className="w-full bg-background/50 border border-text-main/10 rounded-lg p-3 text-text-main focus:border-primary/50 focus:bg-background outline-none transition-all placeholder:text-text-muted" 
                 placeholder="Nombre o Entidad" 
               />
@@ -149,9 +145,6 @@ export default function ContactPage() {
             <button 
               type="submit" 
               disabled={isLoading}
-              // BOTÓN INVERTIDO:
-              // bg-text-main: Negro en light / Blanco en dark
-              // text-background: Blanco en light / Negro en dark
               className="w-full bg-text-main text-background font-bold py-4 rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg"
             >
               {isLoading ? (
