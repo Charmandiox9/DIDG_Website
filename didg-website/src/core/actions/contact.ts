@@ -1,89 +1,51 @@
 "use server";
 
 import { createClient } from "@/infrastructure/supabase/server";
+import { sendTelegramMessage } from "@/core/lib/telegram"; // <--- Importamos la utilidad
 
 export async function sendMessage(data: any) {
-  // 1. EXTRAER DATOS (Incluyendo 'subject')
+  // 1. EXTRAER DATOS
   const name = typeof data.get === 'function' ? data.get('name') : data.name;
   const email = typeof data.get === 'function' ? data.get('email') : data.email;
-  const subject = typeof data.get === 'function' ? data.get('subject') : data.subject; // <--- NUEVO
-  const message = typeof data.get === 'function' ? data.get('message') : data.message;
+  const subject = typeof data.get === 'function' ? data.get('subject') : data.subject;
+  const userMessage = typeof data.get === 'function' ? data.get('message') : data.message;
 
+  // 2. GUARDAR EN SUPABASE
   try {
     const supabase = await createClient();
-    
-    const { error: dbError } = await supabase.from("messages").insert({
-      name: name,
-      email: email,
-      subject: subject,
-      message: message,
-      // created_at e is_read (false) suelen ponerse por defecto en la DB, 
-      // si no, agrégalos aquí.
+    const { error } = await supabase.from("messages").insert({
+      name, email, subject, message: userMessage
     } as any);
-
-    if (dbError) {
-      console.error("Error guardando en Supabase:", dbError);
-      // Opcional: throw new Error("Error DB"); 
-      // Si quieres que falle todo si la DB falla, lanza el error. 
-      // Si prefieres que se envíe a Telegram aunque la DB falle, solo haz console.error.
-    }
+    if (error) console.error("Error Supabase:", error);
   } catch (err) {
-    console.error("Error crítico DB:", err);
+    console.error("Error Crítico DB:", err);
   }
 
-  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+  // 3. PREPARAR DATOS VISUALES
+  const date = new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" });
   
-  // 2. GENERAR FECHA Y HORA
-  const timestamp = new Date().toLocaleString("es-CL", {
-    timeZone: "America/Santiago",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
-  });
-
-  // 3. LIMPIEZA
   const cleanName = (name || "Anónimo").toString().replace(/<|>/g, "");
   const cleanEmail = (email || "Sin email").toString().trim();
-  const cleanSubject = (subject || "Sin asunto").toString().replace(/<|>/g, ""); // <--- LIMPIEZA ASUNTO
-  const cleanMessage = (message || "Sin mensaje").toString().replace(/<|>/g, ""); 
+  const cleanSubject = (subject || "Sin asunto").toString().replace(/<|>/g, "");
+  const cleanMessage = (userMessage || "").toString().replace(/<|>/g, "");
 
-  // 4. CONSTRUCCIÓN DEL MENSAJE (Agregamos la línea de Asunto)
-  const text = `<b>Nuevo mensaje de contacto</b>\n\n` +
-               `👤 <b>Nombre:</b> ${cleanName}\n` +
-               `📧 <b>Email:</b> ${cleanEmail}\n` +
-               `📌 <b>Asunto:</b> ${cleanSubject}\n` +   // <--- AQUI APARECE
-               `🕒 <b>Fecha:</b> ${timestamp}\n\n` +
-               `💬 <b>Mensaje:</b>\n<pre>${cleanMessage}</pre>`;
+  // 4. CONSTRUIR HTML (ESTILO TARJETA)
+  const telegramText = `📬 <b>NUEVO MENSAJE DE CONTACTO</b>\n` +
+                       `──────────────────\n\n` +
+                       `👤 <b>Remitente:</b>\n` +
+                       `├ <b>Nombre:</b> ${cleanName}\n` +
+                       `└ <b>Email:</b> <code>${cleanEmail}</code>\n\n` +
+                       `📌 <b>Asunto:</b> ${cleanSubject}\n\n` +
+                       `💬 <b>Mensaje:</b>\n` +
+                       `<i>"${cleanMessage}"</i>\n\n` +
+                       `──────────────────\n` +
+                       `📅 ${date}`;
 
-  const dashboardUrl = "https://danielduran.engineer";
+  // 5. ENVIAR USANDO LA UTILIDAD CENTRALIZADA
+  // Pasamos el texto Y el array de botones
+  await sendTelegramMessage(telegramText, [
+    { label: "🌐 Ver en Dashboard", url: "https://danielduran.engineer/dashboard/messages" }
+  ]);
 
-  const telegramBody: any = {
-    chat_id: CHAT_ID,
-    text: text,
-    parse_mode: "HTML",
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "🌐 Ver en la Web", url: dashboardUrl }]
-      ]
-    }
-  };
-
-  try {
-    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(telegramBody),
-    });
-
-    const result = await response.json();
-    if (!result.ok) throw new Error(result.description);
-    return { success: true };
-  } catch (error) {
-    console.error("Telegram Error:", error);
-    throw new Error("No se pudo enviar el mensaje.");
-  }
+  return { success: true };
 }

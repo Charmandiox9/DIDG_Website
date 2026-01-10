@@ -61,12 +61,20 @@ export async function initiateLogin(prevState: any, formData: FormData) {
   if (dbError) return { error: "Error de seguridad (DB)." };
 
   // 6. Enviar a Telegram
-  const message = `🔐 <b>ACCESO ADMINISTRADOR</b>\n\n` +
-                  `Usuario: ${email}\n` +
-                  `Rol: <b>${profile?.role?.toUpperCase()}</b>\n\n` +
-                  `Código 2FA: <code>${code}</code>\n\n` +
-                  `<i>Si no eres tú, revisa la seguridad inmediatamente.</i>`;
-  
+  const date = new Date().toLocaleString('es-CL', { timeZone: 'America/Santiago' });
+  const roleIcon = profile?.role === 'admin' ? '👑' : '👤';
+
+  const message = `🛡️ <b>SOLICITUD DE ACCESO 2FA</b>\n` +
+                  `──────────────────\n\n` +
+                  `👤 <b>Credenciales:</b>\n` +
+                  `├ <b>Usuario:</b> <code>${email}</code>\n` + // Click para copiar email
+                  `└ <b>Nivel:</b> ${roleIcon} ${profile?.role?.toUpperCase()}\n\n` +
+                  `🔑 <b>TU CÓDIGO DE ACCESO:</b>\n` +
+                  `👉 <code>${code}</code> 👈\n\n` + // Click para copiar código
+                  `──────────────────\n` +
+                  `⚠️ <i>Este código expira en breve. Si no fuiste tú, asegura tu cuenta inmediatamente.</i>\n` +
+                  `📅 ${date}`;
+
   await sendTelegramMessage(message);
 
   // 7. Decirle al Frontend que muestre el input de código

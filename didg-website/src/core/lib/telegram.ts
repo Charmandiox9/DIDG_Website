@@ -1,41 +1,56 @@
 "use server";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const DEFAULT_CHAT_ID = process.env.TELEGRAM_CHAT_ID; // Tu ID personal (fallback)
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID; // Tu ID personal (fallback)
 const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
+interface TelegramButton {
+  label: string;
+  url: string;
+}
+
 // ACEPTA targetChatId COMO SEGUNDO ARGUMENTO OPCIONAL
-export async function sendTelegramMessage(text: string, targetChatId?: number | string) {
-  if (!BOT_TOKEN) return;
+export async function sendTelegramMessage(text: string, buttons: TelegramButton[] = []) {
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.warn("⚠️ Telegram no configurado (Faltan variables de entorno).");
+    return;
+  }
 
-  // Si no pasamos ID, usa el tuyo por defecto.
-  const finalChatId = targetChatId || DEFAULT_CHAT_ID;
+  // Construimos el cuerpo del mensaje
+  const body: any = {
+    chat_id: CHAT_ID,
+    text: text,
+    parse_mode: "HTML",
+    disable_web_page_preview: true, // Para que no llene el chat con previsualizaciones de enlaces
+  };
 
-  if (!finalChatId) {
-      console.error("❌ Telegram Error: No chat ID provided");
-      return;
+  // Si hay botones, construimos el teclado inline
+  if (buttons.length > 0) {
+    body.reply_markup = {
+      inline_keyboard: [
+        // Mapeamos los botones. Telegram pide arrays de arrays (filas de columnas)
+        buttons.map((btn) => ({
+          text: btn.label,
+          url: btn.url,
+        })),
+      ],
+    };
   }
 
   try {
-    const res = await fetch(`${BASE_URL}/sendMessage`, {
+    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: finalChatId,
-        text: text,
-        parse_mode: "HTML",
-      }),
+      body: JSON.stringify(body),
     });
-    
-    if (!res.ok) {
-        const errText = await res.text();
-        console.error("❌ Telegram API Error:", errText);
-    } else {
-        console.log(`✅ Mensaje enviado a ${finalChatId}`);
-    }
 
+    const result = await response.json();
+
+    if (!result.ok) {
+      console.error("❌ Error API Telegram:", result.description);
+    }
   } catch (error) {
-    console.error("❌ Telegram Network Error:", error);
+    console.error("❌ Error Red Telegram:", error);
   }
 }
 

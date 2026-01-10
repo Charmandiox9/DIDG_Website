@@ -57,14 +57,20 @@ export async function registerStudent(prevState: any, formData: FormData) {
 
   if (!error) {
     // 🔥 DISPARAR NOTIFICACIÓN AL BOT
-    const msg = `🎓 <b>NUEVO ALUMNO MATRICULADO</b>\n\n` +
-                `👤 <b>Nombre:</b> ${fullName}\n` +
-                `📧 <b>Email:</b> ${email}\n` +
-                `🆔 <b>RUT:</b> ${rut}\n` +
-                `📅 <b>Fecha:</b> ${new Date().toLocaleString('es-CL')}`;
-    
+    const date = new Date().toLocaleString('es-CL', { timeZone: 'America/Santiago' });
+
+    const msg = `🎉 <b>NUEVA MATRÍCULA REGISTRADA</b>\n` +
+                `──────────────────\n\n` +
+                `👤 <b>Información del Estudiante:</b>\n` +
+                `├ <b>Nombre:</b> ${fullName}\n` +
+                `├ <b>RUT:</b> <code>${rut}</code>\n` + // 👈 Click para copiar
+                `└ <b>Email:</b> <code>${email}</code>\n\n` + // 👈 Click para copiar
+                `──────────────────\n` +
+                `📅 <b>Fecha:</b> ${date}\n` +
+                `#NewStudent #DIDG_System`;
+
     // No usamos await para no bloquear la UI del usuario
-    sendTelegramMessage(msg); 
+    sendTelegramMessage(msg).catch(e => console.error("Telegram Error:", e));
 
     return { success: true, message: "Estudiante registrado correctamente." };
   }

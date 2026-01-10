@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 
 const AFK_TIME = 120000; 
 const ATTACK_DURATION = 1600; 
-const BASE_BOTTOM = 16; // 16px equivale a bottom-4 de Tailwind
+const BASE_BOTTOM = 16; 
 
 const SPRITES = {
   idle: "/assets/idle.gif",
@@ -14,44 +14,35 @@ const SPRITES = {
 
 export function CharmanderPet() {
   const [status, setStatus] = useState<"idle" | "sleeping" | "attacking">("idle");
-  // 1. NUEVO ESTADO: Para controlar la posición vertical dinámica
   const [bottomOffset, setBottomOffset] = useState(BASE_BOTTOM);
   
   const statusRef = useRef(status);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sincronizar Ref
   useEffect(() => {
     statusRef.current = status;
   }, [status]);
 
-  // --- NUEVA LÓGICA: DETECCIÓN DEL FOOTER ---
   useEffect(() => {
     const handleScrollPosition = () => {
-      // Buscamos la etiqueta <footer> (o puedes usar un ID si prefieres)
       const footer = document.querySelector('footer');
       
       if (footer) {
         const footerRect = footer.getBoundingClientRect();
         const windowHeight = window.innerHeight;
 
-        // Si la parte superior del footer está visible en la ventana
         if (footerRect.top < windowHeight) {
-          // Calculamos cuánto del footer se ve
           const overlap = windowHeight - footerRect.top;
-          // Ajustamos la posición: Base + lo que el footer ha subido
           setBottomOffset(BASE_BOTTOM + overlap);
         } else {
-          // Si no se ve el footer, volvemos a la posición base
           setBottomOffset(BASE_BOTTOM);
         }
       }
     };
 
     window.addEventListener("scroll", handleScrollPosition);
-    window.addEventListener("resize", handleScrollPosition); // Por si cambian el tamaño de ventana
+    window.addEventListener("resize", handleScrollPosition);
 
-    // Chequeo inicial
     handleScrollPosition();
 
     return () => {
@@ -60,7 +51,6 @@ export function CharmanderPet() {
     };
   }, []);
 
-  // --- LÓGICA EXISTENTE DE AFK ---
   useEffect(() => {
     const handleActivity = () => {
       if (statusRef.current === "sleeping") {
@@ -76,10 +66,12 @@ export function CharmanderPet() {
       }, AFK_TIME);
     };
 
+    // Eventos optimizados: 'touchstart' ayuda a despertar rápido en móvil
     window.addEventListener("mousemove", handleActivity);
     window.addEventListener("keydown", handleActivity);
     window.addEventListener("click", handleActivity);
     window.addEventListener("scroll", handleActivity);
+    window.addEventListener("touchstart", handleActivity);
 
     handleActivity();
 
@@ -89,6 +81,7 @@ export function CharmanderPet() {
       window.removeEventListener("keydown", handleActivity);
       window.removeEventListener("click", handleActivity);
       window.removeEventListener("scroll", handleActivity);
+      window.removeEventListener("touchstart", handleActivity);
     };
   }, []);
 
@@ -111,21 +104,27 @@ export function CharmanderPet() {
 
   return (
     <div 
-      className="fixed left-4 z-50 cursor-pointer transition-transform hover:scale-110 active:scale-95"
-      // CAMBIO: Usamos style para controlar el bottom dinámicamente
-      // Quitamos 'bottom-4' de className y lo pasamos aquí
+      // CAMBIOS VISUALES PARA MÓVIL:
+      // 1. left-2 (móvil) -> md:left-4 (escritorio)
+      // 2. z-40 (para estar debajo de modales y botones de acción flotantes)
+      // 3. touch-none (evita zoom accidental al hacer spam click en móviles)
+      className="fixed left-2 md:left-4 z-40 cursor-pointer transition-transform hover:scale-110 active:scale-95 touch-none"
       style={{ bottom: `${bottomOffset}px`, transitionProperty: 'transform, bottom', transitionDuration: '100ms' }}
       onClick={handleClick}
       title={status === 'sleeping' ? '¡Despierta!' : 'Click para atacar'}
     >
         {/* Burbuja Zzz */}
         {status === "sleeping" && (
-            <div className="absolute -top-4 right-2 animate-bounce text-[10px] font-mono text-white bg-black/60 px-2 py-0.5 rounded-full border border-white/10 z-10">
+            <div className="absolute -top-4 right-0 md:right-2 animate-bounce text-[8px] md:text-[10px] font-mono text-white bg-black/60 px-1.5 py-0.5 rounded-full border border-white/10 z-10 whitespace-nowrap">
                 Zzz...
             </div>
         )}
 
-      <div className="relative w-16 h-16 md:w-20 md:h-20">
+      {/* TAMAÑO DE LA IMAGEN:
+          w-14 h-14 (56px) en móvil -> w-20 h-20 (80px) en escritorio
+          Esto evita que tape mucho texto en pantallas pequeñas.
+      */}
+      <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20">
         <img
           src={SPRITES[status]}
           alt="Charmander"
@@ -137,7 +136,7 @@ export function CharmanderPet() {
       
       {/* Efecto fuego */}
       {status === "attacking" && (
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-orange-500/40 blur-lg rounded-full animate-pulse" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 md:w-16 h-4 bg-orange-500/40 blur-lg rounded-full animate-pulse" />
       )}
     </div>
   );
