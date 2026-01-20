@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Github, Globe, ArrowUpRight } from "lucide-react";
+import { Github, Star, ArrowUpRight } from "lucide-react";
 import { cn } from "@/core/utils/cn";
 import { Database } from "@/types/supabase";
 
@@ -14,13 +14,24 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
+  // Extraemos is_featured para usarlo en la lógica visual
+  const { is_featured } = project;
+
   return (
     <div 
       onClick={onClick}
       className={cn(
-        // 1. CAMBIO: bg-surface/50 y border-text-main/10 para que se vea el borde en modo claro
-        // 2. CAMBIO: Shadow dinámica usando var(--primary-glow)
-        "group relative flex flex-col overflow-hidden rounded-xl bg-surface/50 border border-text-main/10 transition-all duration-500 hover:shadow-[0_0_30px_var(--primary-glow)] cursor-pointer hover:border-primary/50",
+        "group relative flex flex-col overflow-hidden rounded-xl bg-surface/50 transition-all duration-500 cursor-pointer",
+        
+        // --- LÓGICA DE ESTILOS SEGÚN ESTADO ---
+        
+        // 1. ESTADO NORMAL (Si NO es destacado)
+        !is_featured && "border border-text-main/10 hover:shadow-[0_0_30px_var(--primary-glow)] hover:border-primary/50",
+        
+        // 2. ESTADO DESTACADO (Gold/Yellow Theme)
+        // Usamos un borde amarillo sutil y una sombra dorada
+        is_featured && "border border-yellow-500/40 shadow-[0_0_15px_rgba(234,179,8,0.1)] hover:border-yellow-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)]",
+        
         className
       )}
     >
@@ -40,12 +51,25 @@ export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
           </div>
         )}
         
-        {/* Gradiente sobre la imagen: Usamos 'from-surface' para que se mezcle con la tarjeta */}
+        {/* Gradiente */}
         <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-90" />
         
+        {/* --- BADGE DE DESTACADO (NUEVO) --- */}
+        {is_featured && (
+            <div className="absolute top-4 left-4 z-20 animate-in slide-in-from-left-2 duration-500">
+                <span className="flex items-center gap-1 px-2 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-black bg-yellow-500 rounded-sm shadow-[0_0_10px_rgba(234,179,8,0.4)]">
+                    <Star className="w-3 h-3 fill-black" /> Destacado
+                </span>
+            </div>
+        )}
+
+        {/* Badge Categoría (Derecha) */}
         <div className="absolute top-4 right-4">
-          {/* Badge: Sombra dinámica */}
-          <span className="px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-background bg-primary rounded-sm shadow-[0_0_10px_var(--primary-glow)]">
+          <span className={cn(
+            "px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-background rounded-sm shadow-lg",
+            // Si es destacado mantenemos el primary para la categoría, o podrías cambiarlo
+            "bg-primary shadow-[0_0_10px_var(--primary-glow)]"
+          )}>
             {project.category}
           </span>
         </div>
@@ -53,8 +77,11 @@ export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
 
       {/* Contenido */}
       <div className="flex flex-col flex-1 p-6 relative">
-        {/* Título: text-text-main (Gris oscuro en Light, Blanco en Dark) */}
-        <h3 className="text-xl font-display font-bold text-text-main mb-2 group-hover:text-primary transition-colors">
+        {/* Título: Cambia a dorado si es destacado al hacer hover */}
+        <h3 className={cn(
+            "text-xl font-display font-bold text-text-main mb-2 transition-colors",
+            is_featured ? "group-hover:text-yellow-500" : "group-hover:text-primary"
+        )}>
           {project.title}
         </h3>
         
@@ -64,14 +91,19 @@ export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
 
         <div className="flex flex-wrap gap-2 mb-6">
           {project.tech_stack?.slice(0, 4).map((tech) => (
-            // Badges de tecnología: Ajustados para contraste
-            <span key={tech} className="px-2 py-1 text-[10px] font-mono text-primary border border-primary/20 rounded bg-primary/5">
+            <span key={tech} className={cn(
+                "px-2 py-1 text-[10px] font-mono border rounded bg-opacity-5",
+                // Tech badges también reaccionan al color del tema
+                is_featured 
+                    ? "text-yellow-500 border-yellow-500/20 bg-yellow-500/5" 
+                    : "text-primary border-primary/20 bg-primary/5"
+            )}>
               {tech}
             </span>
           ))}
         </div>
 
-        {/* Links Footer: Borde dinámico */}
+        {/* Links Footer */}
         <div className="flex items-center gap-4 mt-auto pt-4 border-t border-text-main/10" onClick={(e) => e.stopPropagation()}>
           {project.repo_url && (
             <a href={project.repo_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-mono text-text-muted hover:text-text-main transition-colors">
@@ -79,7 +111,10 @@ export function ProjectCard({ project, className, onClick }: ProjectCardProps) {
             </a>
           )}
           {project.demo_url && (
-            <a href={project.demo_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-mono text-text-muted hover:text-primary transition-colors ml-auto">
+            <a href={project.demo_url} target="_blank" rel="noreferrer" className={cn(
+                "flex items-center gap-2 text-xs font-mono text-text-muted transition-colors ml-auto",
+                is_featured ? "hover:text-yellow-500" : "hover:text-primary"
+            )}>
               LIVE DEMO <ArrowUpRight className="w-4 h-4" />
             </a>
           )}

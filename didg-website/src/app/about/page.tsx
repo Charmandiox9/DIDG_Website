@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link"; // Importante para no recargar la página
 import { Terminal, Zap, Briefcase, GraduationCap, MapPin, FileText, Award, Globe } from "lucide-react";
 import type { Metadata } from "next";
 import { CharmanderPet } from "@/components/home/CharmanderPet";
@@ -8,35 +9,35 @@ export const metadata: Metadata = {
   description: "Desarrollador Full Stack e Ingeniero IoT. Conoce mi experiencia y habilidades.",
 };
 
+// Datos estáticos fuera del componente para mejor rendimiento
+const skills = [
+  { category: "Frontend", items: ["Next.js 14", "React", "Tailwind CSS", "TypeScript", "Framer Motion"] },
+  { category: "Backend", items: ["Node.js", "Supabase", "PostgreSQL", "Express", "Python", "Java"] },
+  { category: "IoT / Hardware", items: ["ESP32", "Arduino", "MQTT", "C++", "Sensors", "PCB Design"] },
+  { category: "DevOps & Tools", items: ["Git", "Docker", "Linux", "VS Code", "Figma"] },
+];
+
+const experience = [
+  {
+    year: "2024 - Presente",
+    title: "Desarrollador Full Stack & IoT",
+    company: "Freelance / Proyectos Propios",
+    desc: "Arquitectura de soluciones escalables usando Next.js y Supabase. Desarrollo de prototipos IoT con ESP32 y dashboard en tiempo real."
+  },
+  {
+    year: "2023 - Presente",
+    title: "Ayudante de Cátedra",
+    company: "Universidad Católica del Norte",
+    desc: "Apoyo docente en asignaturas de P. Programación Avanzada y Estructura de Datos. Mentoria a alumnos de primer año."
+  },
+];
+
+const certifications = [
+  { name: "Scrum Fundamentals Certified", issuer: "SCRUMstudy", year: "2023" },
+  { name: "Curso de Next.js Avanzado", issuer: "Udemy", year: "2024" },
+];
+
 export default function AboutPage() {
-  
-  const skills = [
-    { category: "Frontend", items: ["Next.js 14", "React", "Tailwind CSS", "TypeScript", "Framer Motion"] },
-    { category: "Backend", items: ["Node.js", "Supabase", "PostgreSQL", "Express", "Python", "Java"] },
-    { category: "IoT / Hardware", items: ["ESP32", "Arduino", "MQTT", "C++", "Sensors", "PCB Design"] },
-    { category: "DevOps & Tools", items: ["Git", "Docker", "Linux", "VS Code", "Figma"] },
-  ];
-
-  const experience = [
-    {
-      year: "2024 - Presente",
-      title: "Desarrollador Full Stack & IoT",
-      company: "Freelance / Proyectos Propios",
-      desc: "Arquitectura de soluciones escalables usando Next.js y Supabase. Desarrollo de prototipos IoT con ESP32 y dashboard en tiempo real."
-    },
-    {
-      year: "2023 - Presente",
-      title: "Ayudante de Cátedra",
-      company: "Universidad Católica del Norte",
-      desc: "Apoyo docente en asignaturas de P. Programación Avanzada y Estructura de Datos. Mentoria a alumnos de primer año."
-    },
-  ];
-
-  const certifications = [
-    { name: "Scrum Fundamentals Certified", issuer: "SCRUMstudy", year: "2023" },
-    { name: "Curso de Next.js Avanzado", issuer: "Udemy", year: "2024" },
-  ];
-
   return (
     <div className="min-h-screen py-20 px-4 max-w-6xl mx-auto space-y-20 animate-in fade-in duration-700">
       <CharmanderPet />
@@ -44,9 +45,10 @@ export default function AboutPage() {
       {/* SECCIÓN 1: HEADER & BIO */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
         
-        {/* Columna Izquierda: Avatar y Stats */}
-        <div className="md:col-span-4 space-y-6 sticky top-24">
-          {/* Avatar: Borde adaptable */}
+        {/* --- COLUMNA IZQUIERDA (Perfil) --- */}
+        {/* CORRECCIÓN AQUÍ: 'md:sticky md:top-24' hace que en móvil sea normal (se va al scrollear) */}
+        <div className="md:col-span-4 space-y-6 md:sticky md:top-24">
+          
           <div className="relative aspect-square w-full max-w-xs mx-auto rounded-2xl overflow-hidden border border-text-main/10 group shadow-2xl shadow-primary/10">
             <div className="absolute inset-0 bg-primary/10 mix-blend-overlay z-10 group-hover:bg-transparent transition-colors" />
             <Image 
@@ -76,12 +78,10 @@ export default function AboutPage() {
             </div>
           </div>
           
-          {/* Botones Descargar CV */}
           <div className="w-full">
             <p className="text-xs text-text-muted uppercase font-mono mb-2 text-center opacity-70">
               Descargar CV
             </p>
-            
             <div className="flex gap-3">
               <a 
                 href="/CV.pdf"
@@ -106,10 +106,9 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Columna Derecha: Historia */}
+        {/* --- COLUMNA DERECHA (Contenido) --- */}
         <div className="md:col-span-8 space-y-8">
           <div>
-            {/* Título adaptable */}
             <h1 className="text-4xl md:text-5xl font-display font-bold text-text-main mb-4 leading-tight">
               Ingeniería de Software <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm">
@@ -122,7 +121,6 @@ export default function AboutPage() {
             </h2>
           </div>
           
-          {/* Prose: strong text-text-main */}
           <div className="prose prose-lg max-w-none text-text-muted/90 leading-relaxed space-y-4">
             <p>
               Soy estudiante de <strong className="text-text-main font-bold">Ingeniería en Tecnologías de la Información</strong>. 
@@ -135,17 +133,17 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Botones Sociales Adaptados */}
           <div className="flex flex-wrap gap-4 border-t border-text-main/10 pt-6">
-             <a href="/contact" className="px-6 py-2.5 bg-primary text-background font-bold rounded-lg hover:brightness-110 transition-all shadow-[0_0_15px_var(--primary-glow)]">
-               Contactar
-             </a>
-             <a href="https://github.com/Charmandiox9" target="_blank" className="px-6 py-2.5 bg-surface border border-text-main/10 rounded-lg hover:bg-text-main/5 transition-colors flex items-center gap-2 text-text-main">
-                <Globe className="w-4 h-4" /> GitHub
-             </a>
-             <a href="https://linkedin.com/in/daniel-durán-garcía" target="_blank" className="px-6 py-2.5 bg-surface border border-text-main/10 rounded-lg hover:bg-text-main/5 transition-colors flex items-center gap-2 text-text-main">
-                <Briefcase className="w-4 h-4" /> LinkedIn
-             </a>
+              <Link href="/contact" className="px-6 py-2.5 bg-primary text-background font-bold rounded-lg hover:brightness-110 transition-all shadow-[0_0_15px_var(--primary-glow)]">
+                Contactar
+              </Link>
+              
+              <a href="https://github.com/Charmandiox9" target="_blank" rel="noopener noreferrer" className="px-6 py-2.5 bg-surface border border-text-main/10 rounded-lg hover:bg-text-main/5 transition-colors flex items-center gap-2 text-text-main">
+                 <Globe className="w-4 h-4" /> GitHub
+              </a>
+              <a href="https://linkedin.com/in/daniel-durán-garcía" target="_blank" rel="noopener noreferrer" className="px-6 py-2.5 bg-surface border border-text-main/10 rounded-lg hover:bg-text-main/5 transition-colors flex items-center gap-2 text-text-main">
+                 <Briefcase className="w-4 h-4" /> LinkedIn
+              </a>
           </div>
         </div>
       </div>
@@ -158,7 +156,7 @@ export default function AboutPage() {
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {skills.map((skillGroup, idx) => (
+          {skills.map((skillGroup) => (
             <div key={skillGroup.category} className="bg-surface/50 border border-text-main/5 p-5 rounded-xl hover:bg-surface transition-all hover:-translate-y-1 duration-300 shadow-sm hover:shadow-md">
               <h4 className="text-sm font-bold text-text-muted uppercase tracking-wider mb-4">
                 {skillGroup.category}
@@ -177,8 +175,6 @@ export default function AboutPage() {
 
       {/* SECCIÓN 3: EXPERIENCE & EDUCATION */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        
-        {/* Experiencia */}
         <div className="space-y-8">
           <h3 className="text-2xl font-display font-bold text-text-main flex items-center gap-2">
             <Briefcase className="w-6 h-6 text-blue-500" />
@@ -188,9 +184,7 @@ export default function AboutPage() {
           <div className="relative border-l border-text-main/10 ml-3 space-y-10">
             {experience.map((exp, index) => (
               <div key={index} className="relative pl-8 group">
-                {/* Punto de la línea de tiempo */}
                 <div className="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-surface border border-text-muted group-hover:border-primary group-hover:bg-primary transition-colors shadow-sm" />
-                
                 <span className="text-xs font-mono text-primary mb-1 block font-bold">{exp.year}</span>
                 <h4 className="text-lg font-bold text-text-main">{exp.title}</h4>
                 <p className="text-sm text-text-muted/80 mb-2 font-medium">{exp.company}</p>
@@ -202,15 +196,12 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Educación y Certificaciones */}
         <div className="space-y-8">
-            {/* Educación */}
             <div>
                 <h3 className="text-2xl font-display font-bold text-text-main flex items-center gap-2 mb-8">
                     <GraduationCap className="w-6 h-6 text-purple-500" />
                     Educación
                 </h3>
-                {/* Card Educación */}
                 <div className="bg-surface/50 border border-text-main/5 p-6 rounded-xl relative overflow-hidden shadow-sm">
                     <div className="absolute top-0 right-0 p-4 opacity-5">
                         <GraduationCap className="w-24 h-24 text-text-main" />
@@ -221,7 +212,6 @@ export default function AboutPage() {
                 </div>
             </div>
 
-            {/* Certificaciones */}
             {certifications.length > 0 && (
                 <div>
                     <h3 className="text-xl font-display font-bold text-text-main flex items-center gap-2 mb-6 mt-8">
@@ -242,9 +232,7 @@ export default function AboutPage() {
                 </div>
             )}
         </div>
-
       </div>
-
     </div>
   );
 }

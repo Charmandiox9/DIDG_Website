@@ -2,7 +2,8 @@ import { createClient } from "@/infrastructure/supabase/server";
 import { deleteProject } from "@/core/actions/projects";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, Monitor, Terminal, Cpu, Calendar } from "lucide-react";
+// 1. AGREGAMOS ICONOS NUEVOS: EyeOff, Star
+import { Plus, Pencil, Trash2, Monitor, Terminal, Cpu, Calendar, EyeOff, Star } from "lucide-react";
 
 const CategoryIcon = {
   software: Monitor,
@@ -16,6 +17,8 @@ export default async function ProjectsListPage() {
   const { data: projects } = await supabase
     .from("projects")
     .select("*")
+    // Ordenamos: Primero los destacados, luego por fecha
+    .order("is_featured", { ascending: false }) 
     .order("project_date", { ascending: false }); 
 
   const projectsList = (projects || []) as any[];
@@ -26,7 +29,6 @@ export default async function ProjectsListPage() {
       {/* Cabecera */}
       <div className="flex items-center justify-between">
         <div>
-          {/* Título adaptable */}
           <h1 className="text-3xl font-display font-bold text-text-main">Mis Proyectos</h1>
           <p className="text-text-muted font-mono text-sm">Gestiona tu portafolio digital.</p>
         </div>
@@ -39,7 +41,6 @@ export default async function ProjectsListPage() {
         </Link>
       </div>
 
-      {/* Tabla Contenedor */}
       <div className="rounded-xl border border-text-main/10 bg-surface/50 backdrop-blur-sm overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -68,7 +69,7 @@ export default async function ProjectsListPage() {
                     
                     <td className="p-4">
                       <div className="flex items-center gap-4">
-                        {/* Image Placeholder */}
+                        {/* IMAGEN DEL PROYECTO */}
                         <div className="w-12 h-12 rounded bg-background border border-text-main/10 overflow-hidden relative flex-shrink-0">
                           {project.image_urls?.[0] ? (
                             <Image src={project.image_urls[0]} alt={project.title} fill className="object-cover" />
@@ -76,14 +77,38 @@ export default async function ProjectsListPage() {
                             <div className="flex items-center justify-center h-full text-text-muted"><Icon className="w-6 h-6 opacity-50" /></div>
                           )}
                         </div>
+                        
+                        {/* INFO + BADGES DE ESTADO (AQUÍ ESTÁ LA MAGIA) */}
                         <div>
-                          {/* Title */}
-                          <p className="font-bold text-text-main group-hover:text-primary transition-colors">{project.title}</p>
-                          <p className="text-xs text-text-muted line-clamp-1 max-w-[200px]">{project.description}</p>
+                          <div className="flex items-center gap-2">
+                             <p className="font-bold text-text-main group-hover:text-primary transition-colors">
+                                {project.title}
+                             </p>
+                             
+                             {/* 2. INDICADOR DE DESTACADO */}
+                             {project.is_featured && (
+                                <span title="Proyecto Destacado" className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 rounded-full p-0.5">
+                                    <Star className="w-3 h-3 fill-yellow-500" />
+                                </span>
+                             )}
+                          </div>
+
+                          {/* 3. INDICADOR DE BORRADOR (NO PUBLICADO) */}
+                          <div className="flex items-center gap-2">
+                              {!project.is_published && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-text-muted bg-text-main/5 px-1.5 py-0.5 rounded border border-text-main/10">
+                                    <EyeOff className="w-3 h-3" /> OCULTO
+                                </span>
+                              )}
+                              <p className="text-xs text-text-muted line-clamp-1 max-w-[200px]">
+                                {project.description}
+                              </p>
+                          </div>
                         </div>
                       </div>
                     </td>
                     
+                    {/* ... (El resto de columnas se mantiene igual) ... */}
                     <td className="p-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
                         project.category === 'hardware' ? 'border-amber-500/20 bg-amber-500/10 text-amber-500' :
