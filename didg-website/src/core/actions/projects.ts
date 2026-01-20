@@ -6,7 +6,10 @@ import { redirect } from "next/navigation";
 import { Database } from "@/types/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-// Helper para subir imágenes (Evita repetir código)
+// Tu imagen por defecto (asegúrate que exista en /public/assets/sad.gif)
+const DEFAULT_PROJECT_IMAGE = "/assets/sad.gif";
+
+// Helper para subir imágenes
 async function uploadImage(file: File, supabase: SupabaseClient) {
   if (!file || file.size === 0) return null;
 
@@ -30,6 +33,7 @@ async function uploadImage(file: File, supabase: SupabaseClient) {
   return publicUrl;
 }
 
+// --- CREAR PROYECTO ---
 export async function createProject(formData: FormData) {
   const supabase = (await createClient()) as unknown as SupabaseClient<Database>;
 
@@ -45,9 +49,13 @@ export async function createProject(formData: FormData) {
     is_featured: formData.get("is_featured") === "on",
   };
 
-  // 1. Manejo de Imagen (Usando el helper)
+  // 1. Manejo de Imagen
   const imageFile = formData.get("image") as File;
-  const imageUrl = await uploadImage(imageFile, supabase);
+  const uploadedUrl = await uploadImage(imageFile, supabase);
+
+  // LÓGICA CORREGIDA:
+  // Si subió imagen, usamos esa. Si no, usamos la DEFAULT.
+  const finalImageUrl = uploadedUrl || DEFAULT_PROJECT_IMAGE;
 
   // 2. Procesar datos
   const slug = rawData.title?.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "") || "proyecto-" + Date.now();
@@ -62,7 +70,7 @@ export async function createProject(formData: FormData) {
     tech_stack: techArray,
     repo_url: rawData.repo_url,
     demo_url: rawData.demo_url,
-    image_urls: imageUrl ? [imageUrl] : [], // Array de strings
+    image_urls: [finalImageUrl], // <--- Ahora siempre tendrá al menos la imagen default
     project_date: rawData.project_date,
     is_published: rawData.is_published,
     is_featured: rawData.is_featured,
@@ -95,8 +103,10 @@ export async function updateProject(id: string, formData: FormData) {
     is_featured: formData.get("is_featured") === "on",
   };
 
-  // 1. Manejo de Imagen (Lógica que faltaba)
+  // 1. Manejo de Imagen
   const imageFile = formData.get("image") as File;
+  // Solo intentamos subir, no definimos default aquí porque si no sube nada,
+  // queremos mantener la imagen antigua que ya está en la DB.
   const newImageUrl = await uploadImage(imageFile, supabase);
 
   const techArray = rawData.tech_stack?.toString().split(",").map(t => t.trim()) || [];
@@ -114,10 +124,9 @@ export async function updateProject(id: string, formData: FormData) {
     is_featured: rawData.is_featured,
   };
 
-  // 3. Solo actualizamos la imagen si el usuario subió una nueva
+  // 3. Solo actualizamos la imagen si el usuario subió una NUEVA
   if (newImageUrl) {
     updateData.image_urls = [newImageUrl];
-    // NOTA: Aquí podrías agregar lógica para borrar la imagen antigua de Storage si quieres ahorrar espacio
   }
 
   const { error } = await supabase.from("projects").update(updateData).eq("id", id);
@@ -129,7 +138,7 @@ export async function updateProject(id: string, formData: FormData) {
 
   revalidatePath("/dashboard/projects");
   revalidatePath("/projects");
-  revalidatePath("/"); // Revalidar home por si es destacado
+  revalidatePath("/"); 
   redirect("/dashboard/projects");
 }
 

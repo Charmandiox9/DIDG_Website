@@ -141,6 +141,9 @@ export default function NewProjectPage() {
             accept="image/*" 
             className="w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer" 
           />
+          <p className="text-[10px] text-text-muted pt-1 ml-1">
+            * Si no subes nada, se asignará una imagen por defecto automáticamente.
+          </p>
         </div>
 
         {/* OPCIONES DE VISIBILIDAD */}
