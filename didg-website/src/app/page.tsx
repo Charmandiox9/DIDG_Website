@@ -176,6 +176,7 @@ export default async function Home() {
         </section>
       )}
 
+      
       {/* --- SECCIÓN: COMPILADOR --- */}
       <section className="container mx-auto px-4 w-full max-w-5xl">
         <div className="text-center mb-12 space-y-4">
